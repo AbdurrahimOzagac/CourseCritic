@@ -53,7 +53,7 @@ for i in instructors:
 
 users = [uid(f'user:{n}') for n in range(12)]
 for n, u in enumerate(users):
-    out.append(f"INSERT OR IGNORE INTO users (id, email_hash, role) VALUES ({q(u)}, {q('sample-hash-' + str(n))}, 'user');")
+    out.append(f"INSERT OR IGNORE INTO users (id, email_hash) VALUES ({q(u)}, {q('sample-hash-' + str(n))});")
 
 comments = [
     'Hoca konuyu çok net anlatıyor, slaytlar yeterli. Ödevler uzun ama öğretici.',
