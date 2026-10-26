@@ -128,4 +128,5 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
 
 - **Altyapı:** Cloudflare Workers + SvelteKit 3 + D1 (SQLite) + Drizzle. Ayrıntılar README.md'de.
 - **Giriş:** Kendi e-posta kodu sistemimiz. E-posta yerine sadece HMAC özeti saklanır. Admin'ler `ADMIN_EMAILS` gizli değişkeniyle belirlenir.
+  Admin adresleri `.edu` şartından muaftır (ör. Gmail ile yönetim).
 - **E-posta gönderimi:** Resend. Güvenilir gönderim için kendi alan adı gerekir, `.com.tr` düşünülüyor.

@@ -47,7 +47,7 @@ npm run db:generate    # schema.ts değişince yeni migration üretir (migration
    ```sh
    npx wrangler secret put AUTH_SECRET      # openssl rand -base64 48
    npx wrangler secret put RESEND_API_KEY
-   npx wrangler secret put ADMIN_EMAILS     # ör. ad.soyad@hacettepe.edu.tr
+   npx wrangler secret put ADMIN_EMAILS     # virgülle ayrılmış; bu adresler .edu şartından muaftır
    ```
 3. `wrangler.jsonc` içindeki `EMAIL_FROM` ve `CONTACT_EMAIL` değerlerini güncelleyin.
    E-posta gönderimi için Resend'de doğrulanmış bir alan adı gerekir (ör. `.com.tr`).

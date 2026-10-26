@@ -22,18 +22,16 @@ export const actions: Actions = {
 		const r = safeRedirectPath(String(form.get('r') ?? ''));
 		const domains = parseDomainList(locals.env.ALLOWED_EMAIL_DOMAINS);
 
-		if (!isAllowedEmail(email, domains)) return fail(400, { email, error: 'domain' as const });
+		// Admin adresleri alan adı şartından muaftır (ör. Gmail ile yönetim)
+		const isAdmin = parseDomainList(locals.env.ADMIN_EMAILS).includes(email);
+		if (!isAdmin && !isAllowedEmail(email, domains)) {
+			return fail(400, { email, error: 'domain' as const });
+		}
 
 		const hash = await emailHash(locals.env.AUTH_SECRET, email);
 		if (await isBanned(locals.db, hash)) return fail(403, { email, error: 'banned' as const });
 
-		const admins = parseDomainList(locals.env.ADMIN_EMAILS);
-		const result = await createLoginCode(
-			locals.db,
-			locals.env.AUTH_SECRET,
-			hash,
-			admins.includes(email)
-		);
+		const result = await createLoginCode(locals.db, locals.env.AUTH_SECRET, hash, isAdmin);
 		if (!result.ok) return fail(429, { email, error: 'rate_limited' as const });
 
 		const sent = await sendLoginCode(locals.env, {
