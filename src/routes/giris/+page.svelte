@@ -9,13 +9,11 @@
 	const errorText = $derived(
 		form?.error === 'domain'
 			? m.login_error_domain({ domains: data.domains.map((d) => '@' + d).join(', ') })
-			: form?.error === 'banned'
-				? m.login_error_banned()
-				: form?.error === 'rate_limited'
-					? m.login_error_rate_limited()
-					: form?.error === 'mail_failed'
-						? m.login_error_mail()
-						: null
+			: form?.error === 'rate_limited'
+				? m.login_error_rate_limited()
+				: form?.error === 'mail_failed'
+					? m.login_error_mail()
+					: null
 	);
 </script>
 
