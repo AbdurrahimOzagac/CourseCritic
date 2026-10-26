@@ -16,6 +16,8 @@ SvelteKit kaynak kodundan doğrulandı. Açık 1 ve bazı "açık değil" sonuç
 | 6   | Tarayıcıya kullanıcının kendi kimliği (`id`) gönderiliyor            | Düşük                | Kapatıldı |
 | 7   | `ADMIN_EMAILS`'ten çıkarılan admin, yeniden giriş yapana kadar admin | Düşük                | Kapatıldı |
 
+Düzeltmeler 26 Ekim 2026'da canlıya alındı (Worker sürümü `0f01ddf9`, migration'lar `0001` ve `0002`).
+
 ---
 
 ## 1. Admin verileri giriş yapmadan okunabiliyor
