@@ -1,9 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { sql } from 'drizzle-orm';
 import type { Term } from '#lib/constants.ts';
-import { destroySession } from '#lib/server/auth.ts';
-import { users } from '#lib/server/db/schema.ts';
-import { eq } from 'drizzle-orm';
+import { deleteUser, destroySession } from '#lib/server/auth.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -36,8 +34,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	deleteAccount: async ({ locals, cookies }) => {
 		if (!locals.user) redirect(303, '/giris');
-		await locals.db.delete(users).where(eq(users.id, locals.user.id));
 		await destroySession(locals.db, cookies);
+		await deleteUser(locals.db, locals.user.id);
 		redirect(303, '/');
 	}
 };

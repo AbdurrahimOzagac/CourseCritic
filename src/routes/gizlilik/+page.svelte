@@ -40,6 +40,11 @@
 			You can edit or delete your reviews, and delete your account with all of its content, from the
 			"My account" page.
 		</p>
+		<p>
+			When you delete your account, the reasons you wrote in your reports are deleted too. The
+			reports themselves keep counting, without any link to you, so that deleting and re-creating an
+			account cannot be used to report the same review again.
+		</p>
 	{:else}
 		<h2>Ne saklıyoruz?</h2>
 		<ul>
@@ -67,6 +72,11 @@
 		<p>
 			"Hesabım" sayfasından değerlendirmelerini düzenleyebilir, silebilir ya da hesabını tüm
 			içeriğiyle birlikte silebilirsin.
+		</p>
+		<p>
+			Hesabını sildiğinde bildirimlerinde yazdığın nedenler de silinir. Bildirimin kendisi, sana
+			bağlanamayacak şekilde sayılmaya devam eder; böylece hesap silip yeniden açarak aynı yorum
+			tekrar bildirilemez.
 		</p>
 	{/if}
 	{#if data.contact}<p>{m.contact()}: <a href="mailto:{data.contact}">{data.contact}</a></p>{/if}

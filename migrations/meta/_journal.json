@@ -15,6 +15,13 @@
       "when": 1793041102918,
       "tag": "0001_dynamic_admin_role",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793041205778,
+      "tag": "0002_report_identity",
+      "breakpoints": true
     }
   ]
 }

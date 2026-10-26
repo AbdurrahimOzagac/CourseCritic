@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}>(sql`
 		SELECT r.id, r.status, r.report_count AS reportCount, r.comment, r.academic_year AS academicYear, r.term,
 			c.code AS courseCode, c.slug AS courseSlug, i.title AS instructorTitle, i.name AS instructorName,
-			(SELECT json_group_array(p.reason) FROM reports p WHERE p.review_id = r.id AND p.reason IS NOT NULL) AS reasons
+			(SELECT json_group_array(p.reason) FROM reports p WHERE p.review_id = r.id AND p.reason IS NOT NULL AND p.dismissed = 0) AS reasons
 		FROM reviews r
 		JOIN courses c ON c.id = r.course_id
 		JOIN instructors i ON i.id = r.instructor_id
@@ -48,8 +48,12 @@ export const actions: Actions = {
 		requireAdmin(event);
 		const review = await reviewFromForm(event.locals, event.request);
 		if (!review) return fail(404);
+		// Bildirimler silinmez, reddedildi olarak işaretlenir: aynı kişiler bu yorumu tekrar gizletemez
 		await event.locals.db.batch([
-			event.locals.db.delete(reports).where(eq(reports.reviewId, review.id)),
+			event.locals.db
+				.update(reports)
+				.set({ dismissed: true })
+				.where(eq(reports.reviewId, review.id)),
 			event.locals.db
 				.update(reviews)
 				.set({ status: 'published', reportCount: 0 })

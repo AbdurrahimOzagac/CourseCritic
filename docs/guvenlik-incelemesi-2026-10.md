@@ -12,7 +12,7 @@ SvelteKit kaynak kodundan doğrulandı. Açık 1 ve bazı "açık değil" sonuç
 | 2   | Giriş kodu deneme sınırı eşzamanlı isteklerle aşılabiliyor           | Yüksek (başarılırsa) | Kapatıldı |
 | 3   | Giriş ekranı bir e-postanın banlı olup olmadığını söylüyor           | Orta                 | Kapatıldı |
 | 4   | "+" eklenmiş adreslerle tek posta kutusundan çok hesap açılabiliyor  | Orta                 | Kapatıldı |
-| 5   | Hesap silip yeniden açarak tek kişi yorum gizletebiliyor             | Orta                 | Açık      |
+| 5   | Hesap silip yeniden açarak tek kişi yorum gizletebiliyor             | Orta                 | Kapatıldı |
 | 6   | Tarayıcıya kullanıcının kendi kimliği (`id`) gönderiliyor            | Düşük                | Kapatıldı |
 | 7   | `ADMIN_EMAILS`'ten çıkarılan admin, yeniden giriş yapana kadar admin | Düşük                | Kapatıldı |
 
@@ -90,6 +90,8 @@ SvelteKit kaynak kodundan doğrulandı. Açık 1 ve bazı "açık değil" sonuç
   - Gizleme kararı saklanan sayaçtan değil, gerçek bildirim satırları sayılarak verilir.
   - Admin bir yorumu geri açınca mevcut bildirimler "reddedildi" olarak işaretlenir. Aynı kişiler o yorumu tekrar
     gizletemez.
+- **Doğrulama:** Düzeltmeden önce tek kişi 3 turda yorumu gizletti. Sonra 3 turda sayaç 1'de kaldı; 3 farklı kişi
+  gizletebiliyor, admin geri açınca aynı kişiler tekrar gizletemiyor (yerel test).
 
 ## 6. Tarayıcıya kullanıcının kendi kimliği gönderiliyor
 

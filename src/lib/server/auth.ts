@@ -1,7 +1,7 @@
 import type { Cookies } from '@sveltejs/kit';
 import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import type { Db } from './db';
-import { bannedEmails, loginCodes, sessions, users } from './db/schema';
+import { bannedEmails, loginCodes, reports, sessions, users } from './db/schema';
 import { hmac, randomCode, randomToken, sha256, timingSafeEqual } from './crypto';
 import { normalizeEmail } from '../email';
 
@@ -16,7 +16,8 @@ const CODE_TTL = 10 * 60 * 1000;
 const MAX_CODE_ATTEMPTS = 5;
 const MAX_CODES_PER_HOUR = 5;
 
-export type SessionUser = { id: string; role: 'user' | 'admin' };
+/** Sadece sunucuda kalır; istemciye en fazla `role` gönderilir. */
+export type SessionUser = { id: string; role: 'user' | 'admin'; emailHash: string };
 
 const adminHashCache = new Map<string, Promise<Set<string>>>();
 
@@ -173,7 +174,11 @@ export async function validateSession(
 		setSessionCookie(cookies, token, expiresAt);
 	}
 	const admins = await adminEmailHashes(admin.secret, admin.emails);
-	return { id: row.userId, role: admins.has(row.emailHash) ? 'admin' : 'user' };
+	return {
+		id: row.userId,
+		role: admins.has(row.emailHash) ? 'admin' : 'user',
+		emailHash: row.emailHash
+	};
 }
 
 export async function destroySession(db: Db, cookies: Cookies) {
@@ -182,12 +187,33 @@ export async function destroySession(db: Db, cookies: Cookies) {
 	cookies.delete(SESSION_COOKIE, { path: '/' });
 }
 
+/**
+ * Kullanıcıyı ve içeriğini siler: değerlendirmeler, öneriler ve oturumlar silinir (FK cascade), yaptığı bildirimlerin
+ * neden metinleri temizlenir. Bildirimin kendisi kimliğe bağlanamayan anahtarıyla sayılmaya devam eder; aksi halde
+ * hesabı silip yeniden açarak aynı yorum tekrar bildirilebilirdi.
+ */
+function deleteUserStatements(db: Db, userId: string) {
+	return [
+		db.update(reports).set({ reason: null }).where(eq(reports.userId, userId)),
+		db.delete(users).where(eq(users.id, userId))
+	] as const;
+}
+
+export async function deleteUser(db: Db, userId: string) {
+	await db.batch(deleteUserStatements(db, userId));
+}
+
 /** Kullanıcıyı ve tüm içeriğini siler, e-posta özetini kara listeye ekler. */
 export async function banUser(db: Db, userId: string) {
 	const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
 	if (!user) return;
 	await db.batch([
 		db.insert(bannedEmails).values({ emailHash: user.emailHash }).onConflictDoNothing(),
-		db.delete(users).where(eq(users.id, userId))
+		...deleteUserStatements(db, userId)
 	]);
+}
+
+/** Bir kişinin bir yorum için bildirim anahtarı: hesap değişse de aynı, yorumlar arasında bağlanamaz. */
+export function reporterKey(secret: string, reviewId: string, userEmailHash: string) {
+	return hmac(secret, `report:${reviewId}:${userEmailHash}`);
 }

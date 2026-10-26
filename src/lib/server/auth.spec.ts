@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adminEmailHashes, emailHash } from './auth.ts';
+import { adminEmailHashes, emailHash, reporterKey } from './auth.ts';
 
 describe('adminEmailHashes', () => {
 	const secret = 'test-secret-test-secret-test-secret';
@@ -22,5 +22,23 @@ describe('adminEmailHashes', () => {
 
 	it('handles an empty list', async () => {
 		expect((await adminEmailHashes(secret, undefined)).size).toBe(0);
+	});
+});
+
+describe('reporterKey', () => {
+	const secret = 'test-secret-test-secret-test-secret';
+
+	it('is stable for the same person and review, and unlinkable across reviews', async () => {
+		const person = await emailHash(secret, 'ali@hacettepe.edu.tr');
+		const other = await emailHash(secret, 'veli@hacettepe.edu.tr');
+		expect(await reporterKey(secret, 'review-1', person)).toBe(
+			await reporterKey(secret, 'review-1', person)
+		);
+		expect(await reporterKey(secret, 'review-1', person)).not.toBe(
+			await reporterKey(secret, 'review-2', person)
+		);
+		expect(await reporterKey(secret, 'review-1', person)).not.toBe(
+			await reporterKey(secret, 'review-1', other)
+		);
 	});
 });

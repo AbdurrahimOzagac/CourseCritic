@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { and, eq, sql } from 'drizzle-orm';
 import { REPORT_HIDE_THRESHOLD } from '#lib/constants.ts';
+import { reporterKey } from '#lib/server/auth.ts';
 import { reports, reviews } from '#lib/server/db/schema.ts';
 import {
 	getCourseBySlug,
@@ -73,17 +74,21 @@ export const actions: Actions = {
 		if (!review) return fail(404, { reportError: 'not_found' });
 		if (review.userId === locals.user.id) return fail(400, { reportError: 'own_review' });
 
+		// Kişi kullanıcı kimliğiyle değil, hesap silinip açılınca değişmeyen anahtarla tanınır (bkz. reports şeması)
+		const key = await reporterKey(locals.env.AUTH_SECRET, reviewId, locals.user.emailHash);
 		const inserted = await locals.db
 			.insert(reports)
-			.values({ reviewId, userId: locals.user.id, reason })
+			.values({ reviewId, reporterKey: key, userId: locals.user.id, reason })
 			.onConflictDoNothing()
-			.returning();
+			.returning({ reviewId: reports.reviewId });
 		if (inserted.length) {
+			// Sayaç her seferinde gerçek bildirimlerden yeniden hesaplanır; admin'in reddettikleri sayılmaz
+			const active = sql`(SELECT COUNT(*) FROM ${reports} WHERE ${reports.reviewId} = ${reviewId} AND ${reports.dismissed} = 0)`;
 			await locals.db
 				.update(reviews)
 				.set({
-					reportCount: sql`${reviews.reportCount} + 1`,
-					status: sql`CASE WHEN ${reviews.reportCount} + 1 >= ${REPORT_HIDE_THRESHOLD} THEN 'hidden' ELSE ${reviews.status} END`
+					reportCount: active,
+					status: sql`CASE WHEN ${active} >= ${REPORT_HIDE_THRESHOLD} THEN 'hidden' ELSE ${reviews.status} END`
 				})
 				.where(eq(reviews.id, reviewId));
 		}

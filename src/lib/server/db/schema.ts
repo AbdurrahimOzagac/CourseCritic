@@ -211,19 +211,33 @@ export const reviews = sqliteTable(
 	]
 );
 
+/**
+ * Bildirimler. Bir kişi bir yorumu bir kez bildirebilir; kişi `reporterKey` ile tanınır, kullanıcı kimliğiyle değil.
+ * Böylece hesabı silip yeniden açmak yeni bir bildirim hakkı vermez.
+ */
 export const reports = sqliteTable(
 	'reports',
 	{
 		reviewId: text('review_id')
 			.notNull()
 			.references(() => reviews.id, { onDelete: 'cascade' }),
-		userId: text('user_id')
-			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
+		/**
+		 * HMAC(AUTH_SECRET, yorum + e-posta özeti). Hesap silinip yeniden açılsa da aynı kalır. Yorum başına farklı
+		 * olduğu için bir kişinin farklı yorumlara yaptığı bildirimler birbirine bağlanamaz.
+		 */
+		reporterKey: text('reporter_key').notNull(),
+		/** Sadece "bildirdin" göstermek için. Hesap silinince boşalır, bildirim sayılmaya devam eder. */
+		userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+		/** Hesap silinince temizlenir (kişinin yazdığı içerik). */
 		reason: text('reason'),
+		/** Admin yorumu geri açınca işaretlenir: artık sayılmaz, aynı kişi o yorumu tekrar bildiremez. */
+		dismissed: integer('dismissed', { mode: 'boolean' }).notNull().default(false),
 		createdAt: createdAt()
 	},
-	(t) => [primaryKey({ columns: [t.reviewId, t.userId] })]
+	(t) => [
+		primaryKey({ columns: [t.reviewId, t.reporterKey] }),
+		index('reports_user_idx').on(t.userId)
+	]
 );
 
 /** Öğrencilerin ders bilgisi düzeltme / yeni ders önerileri. Admin onaylayınca uygulanır. */
