@@ -1,0 +1,29 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "coursecritic",
+	"compatibility_date": "2026-10-26",
+	"compatibility_flags": ["nodejs_als"],
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"workers_dev": true,
+	"preview_urls": true,
+	// IP adresi ve istek kaydı tutmuyoruz (anonimlik). Bkz. PLAN.md
+	"observability": { "enabled": false },
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "coursecritic",
+			// `wrangler d1 create coursecritic` çıktısındaki id ile değiştirin
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"vars": {
+		"ALLOWED_EMAIL_DOMAINS": "hacettepe.edu.tr",
+		"EMAIL_FROM": "DersSeç <giris@example.com>",
+		"CONTACT_EMAIL": ""
+	}
+}

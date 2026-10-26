@@ -44,14 +44,14 @@ Yapı her ders için aynıdır. Tek hocalı dersler için ayrı bir davranış y
 
 Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
 
-| Kriter | 1 → 7 |
-|---|---|
-| Konu zorluğu | Çok kolay · Kolay · Orta kolay · Orta · Orta zor · Zor · Çok zor |
-| İş yükü | Çok az · Az · Orta az · Orta · Orta fazla · Fazla · Çok fazla |
-| Öğreticilik | Hiç öğretici değil · Az öğretici · Orta altı · Orta · Orta üstü · Öğretici · Çok öğretici |
-| Hocanın anlatımı | Çok kötü · Kötü · Orta kötü · Orta · Orta iyi · İyi · Çok iyi |
-| Hocanın tutumu | Çok kötü · Kötü · Orta kötü · Orta · Orta iyi · İyi · Çok iyi |
-| Hocanın konu hakimiyeti | Çok zayıf · Zayıf · Orta zayıf · Orta · Orta iyi · İyi · Çok iyi |
+| Kriter                  | 1 → 7                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| Konu zorluğu            | Çok kolay · Kolay · Orta kolay · Orta · Orta zor · Zor · Çok zor                          |
+| İş yükü                 | Çok az · Az · Orta az · Orta · Orta fazla · Fazla · Çok fazla                             |
+| Öğreticilik             | Hiç öğretici değil · Az öğretici · Orta altı · Orta · Orta üstü · Öğretici · Çok öğretici |
+| Hocanın anlatımı        | Çok kötü · Kötü · Orta kötü · Orta · Orta iyi · İyi · Çok iyi                             |
+| Hocanın tutumu          | Çok kötü · Kötü · Orta kötü · Orta · Orta iyi · İyi · Çok iyi                             |
+| Hocanın konu hakimiyeti | Çok zayıf · Zayıf · Orta zayıf · Orta · Orta iyi · İyi · Çok iyi                          |
 
 - Özet puan, ortalamanın etiketiyle gösterilir (ör. "Orta zor"). Yanında 7 basamağın dağılımını gösteren küçük bir çubuk olur.
 - **Az değerlendirme:** Değerlendirme sayısı 3'ten azsa ders listesinde özet puan yerine "Yetersiz değerlendirme (n)" yazar. Ders sayfasında puanlar ve yorumlar yine görünür.
@@ -109,18 +109,23 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
 - Hoca puanlaması ve hoca sıralaması (hoca sayfası sadece ders listesi içerir)
 - Yorumlara cevap
 
+## Sonradan verilen kararlar
+
+- Reddit tarzı tartışma bölümü **yok**.
+- "Tavsiye eder misin?" sorusu **yok**. Derslere yığılma yaratabilir.
+- Ders bilgileri (kredi, AKTS, sınıf, tür, ön koşul, açıklama) ders sayfasında gösterilir. Öğrenciler düzeltme ya da yeni ders önerebilir, admin onaylar.
+- Mezunlar: e-posta adresi açık kaldığı sürece giriş yapabilir. Oturumlar 1 yıl geçerli ve kullanıldıkça uzar. Ayrıca okul dışı e-posta bağlama yok; edu e-postasıyla giriş kritik.
+- Yıllara göre puanlama (deneme sürümü): ders sayfasında **Hoca** ve **Dönem** filtreleri var. Puanlar seçime göre yeniden hesaplanır. Böylece üç seviye (ders / ders + hoca / ders + hoca + dönem) tek sayfada. Kullanımla birlikte yeniden değerlendirilecek.
+
 ## Açık konular
 
-- [ ] "Reddit gibi" yardımlaşma: Değerlendirmelerin yanında ayrı bir **soru-cevap / tartışma** bölümü olacak mı? Olacaksa yukarı/aşağı oy kullanılacak mı?
 - [ ] Ek sorular ve formatları: yoklama nasıl alındı, hoca dersi gerçekte hangi dilde işliyor, slaytlar yeterli mi, kaynak bulunuyor mu vb.
-- [ ] Yıllara göre puanlama: Ders sayfasında hoca ve dönem filtresi olsun mu, puanlar seçime göre yeniden hesaplansın mı?
-- [ ] Mezunlar: Okul e-postası kapanınca nasıl giriş yapacaklar?
-- [ ] "Tavsiye eder misin?" (Evet/Hayır) sorusu kalacak mı?
-- [ ] Ders tablosundaki sütunlar, filtreler ve sıralama seçenekleri.
-- [ ] Ders sayfasında kredi/AKTS, ön koşul, sınıf ve tanım bilgileri olacak mı?
+- [ ] Ders tablosundaki sütunlar, filtreler ve sıralama seçenekleri (şimdilik: kod, hocalar, konu zorluğu, iş yükü, öğreticilik, değerlendirme sayısı; sınıf ve tür filtresi).
+- [ ] Kullanım koşulları ve KVKK metinlerinin hukuki kontrolü.
+- [ ] Giriş kodu isteklerine IP'den bağımsız ek koruma (Cloudflare Turnstile ya da Rate Limiting). Şu an sadece e-posta başına saatte 5 kod sınırı var.
 
-## Teknik yön (taslak, onay bekliyor)
+## Teknik yapı
 
-- **Altyapı:** Cloudflare Pages/Workers, SvelteKit, D1 veritabanı.
-- **Giriş:** Kendi e-posta kodu sistemimiz. E-posta yerine sadece HMAC özeti saklanır.
+- **Altyapı:** Cloudflare Workers + SvelteKit 3 + D1 (SQLite) + Drizzle. Ayrıntılar README.md'de.
+- **Giriş:** Kendi e-posta kodu sistemimiz. E-posta yerine sadece HMAC özeti saklanır. Admin'ler `ADMIN_EMAILS` gizli değişkeniyle belirlenir.
 - **E-posta gönderimi:** Resend. Güvenilir gönderim için kendi alan adı gerekir, `.com.tr` düşünülüyor.

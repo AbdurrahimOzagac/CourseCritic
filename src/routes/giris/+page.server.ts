@@ -1,0 +1,57 @@
+import { fail, redirect } from '@sveltejs/kit';
+import { dev } from '$app/env';
+import { m } from '#lib/paraglide/messages.js';
+import { createLoginCode, emailHash, isBanned, LOGIN_COOKIE } from '#lib/server/auth.ts';
+import { isAllowedEmail, normalizeEmail, parseDomainList } from '#lib/email.ts';
+import { sendLoginCode } from '#lib/server/mail.ts';
+import { safeRedirectPath } from '#lib/server/redirect.ts';
+import type { Actions, PageServerLoad } from './$types';
+
+export const load: PageServerLoad = ({ locals, url }) => {
+	if (locals.user) redirect(303, safeRedirectPath(url.searchParams.get('r')));
+	return {
+		domains: parseDomainList(locals.env.ALLOWED_EMAIL_DOMAINS),
+		r: safeRedirectPath(url.searchParams.get('r'))
+	};
+};
+
+export const actions: Actions = {
+	default: async ({ locals, request, cookies }) => {
+		const form = await request.formData();
+		const email = normalizeEmail(String(form.get('email') ?? ''));
+		const r = safeRedirectPath(String(form.get('r') ?? ''));
+		const domains = parseDomainList(locals.env.ALLOWED_EMAIL_DOMAINS);
+
+		if (!isAllowedEmail(email, domains)) return fail(400, { email, error: 'domain' as const });
+
+		const hash = await emailHash(locals.env.AUTH_SECRET, email);
+		if (await isBanned(locals.db, hash)) return fail(403, { email, error: 'banned' as const });
+
+		const admins = parseDomainList(locals.env.ADMIN_EMAILS);
+		const result = await createLoginCode(
+			locals.db,
+			locals.env.AUTH_SECRET,
+			hash,
+			admins.includes(email)
+		);
+		if (!result.ok) return fail(429, { email, error: 'rate_limited' as const });
+
+		const sent = await sendLoginCode(locals.env, {
+			to: email,
+			code: result.code,
+			siteName: m.site_name(),
+			subject: m.login_mail_subject({ site: m.site_name() }),
+			body: m.login_mail_body()
+		});
+		if (!sent) return fail(502, { email, error: 'mail_failed' as const });
+
+		cookies.set(LOGIN_COOKIE, JSON.stringify({ id: result.attemptId, r }), {
+			path: '/giris',
+			httpOnly: true,
+			sameSite: 'lax',
+			maxAge: 15 * 60,
+			secure: !dev
+		});
+		redirect(303, '/giris/dogrula');
+	}
+};

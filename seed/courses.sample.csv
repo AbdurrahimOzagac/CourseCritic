@@ -1,0 +1,13 @@
+code,name_tr,name_en,credits,ects,year_level,kind,prerequisites,description_tr,description_en
+BBM 101,Programlamaya Giriş I,Introduction to Programming I,3,6,1,zorunlu,,,
+BBM 102,Programlamaya Giriş II,Introduction to Programming II,3,6,1,zorunlu,BBM 101,,
+BBM 201,Veri Yapıları,Data Structures,3,6,2,zorunlu,BBM 102,,
+BBM 202,Algoritmalar,Algorithms,3,6,2,zorunlu,BBM 201,,
+BBM 231,Lojik Tasarım,Logic Design,3,5,2,zorunlu,,,
+BBM 234,Bilgisayar Organizasyonu,Computer Organization,3,5,2,zorunlu,BBM 231,,
+BBM 301,Programlama Dilleri,Programming Languages,3,6,3,zorunlu,BBM 202,,
+BBM 342,İşletim Sistemleri,Operating Systems,3,6,3,zorunlu,BBM 201,,
+BBM 371,Veri Yönetimi,Data Management,3,6,3,zorunlu,,,
+BBM 406,Makine Öğrenmesinin Temelleri,Fundamentals of Machine Learning,3,6,4,seçmeli,,,
+BBM 418,Bilgisayarlı Görü,Computer Vision,3,6,4,seçmeli,,,
+BBM 465,Bilgi Güvenliği,Information Security,3,6,4,seçmeli,,,

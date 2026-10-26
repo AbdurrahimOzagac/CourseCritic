@@ -1,0 +1,12 @@
+# Yerel geliştirme için gizli değerler. Bu dosyayı .dev.vars olarak kopyalayın.
+# Canlıda bu değerleri `wrangler secret put <AD>` ile girin. Asla commit'lemeyin.
+
+# E-posta özetleri (HMAC) ve oturumlar için gizli anahtar. Uzun ve rastgele olmalı:
+#   openssl rand -base64 48
+AUTH_SECRET="degistir-beni-en-az-32-karakter-rastgele-bir-deger"
+
+# Resend API anahtarı. Boş bırakılırsa giriş kodu e-posta yerine konsola yazılır (sadece yerelde).
+RESEND_API_KEY=""
+
+# Virgülle ayrılmış admin e-postaları. Giriş sırasında karşılaştırılır, veritabanına yazılmaz.
+ADMIN_EMAILS="admin@hacettepe.edu.tr"
