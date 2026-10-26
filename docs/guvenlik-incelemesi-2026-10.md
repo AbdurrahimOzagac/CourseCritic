@@ -9,7 +9,7 @@ SvelteKit kaynak kodundan doğrulandı. Açık 1 ve bazı "açık değil" sonuç
 | #   | Bulgu                                                                | Önem                 | Durum     |
 | --- | -------------------------------------------------------------------- | -------------------- | --------- |
 | 1   | Admin verileri giriş yapmadan okunabiliyor                           | Orta                 | Kapatıldı |
-| 2   | Giriş kodu deneme sınırı eşzamanlı isteklerle aşılabiliyor           | Yüksek (başarılırsa) | Açık      |
+| 2   | Giriş kodu deneme sınırı eşzamanlı isteklerle aşılabiliyor           | Yüksek (başarılırsa) | Kapatıldı |
 | 3   | Giriş ekranı bir e-postanın banlı olup olmadığını söylüyor           | Orta                 | Açık      |
 | 4   | "+" eklenmiş adreslerle tek posta kutusundan çok hesap açılabiliyor  | Orta                 | Açık      |
 | 5   | Hesap silip yeniden açarak tek kişi yorum gizletebiliyor             | Orta                 | Açık      |
@@ -46,6 +46,7 @@ SvelteKit kaynak kodundan doğrulandı. Açık 1 ve bazı "açık değil" sonuç
 - **Düzeltme:** Sayaç tek bir SQL komutuyla, sadece sınırın altındaysa artırılır
   (`UPDATE ... SET attempts = attempts + 1 WHERE attempts < 5 RETURNING`). Kod yalnızca bu komut bir satır döndürürse
   karşılaştırılır.
+- **Doğrulama:** Düzeltmeden önce 60 eşzamanlı istekte 13 tahmin değerlendirildi; sonra tam 5 (yerel test).
 
 ## 3. Giriş ekranı bir e-postanın banlı olup olmadığını söylüyor
 

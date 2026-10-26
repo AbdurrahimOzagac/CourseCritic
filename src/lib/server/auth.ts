@@ -1,5 +1,5 @@
 import type { Cookies } from '@sveltejs/kit';
-import { and, eq, gt, lt } from 'drizzle-orm';
+import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import type { Db } from './db';
 import { bannedEmails, loginCodes, sessions, users } from './db/schema';
 import { hmac, randomCode, randomToken, sha256, timingSafeEqual } from './crypto';
@@ -67,19 +67,33 @@ export async function verifyLoginCode(
 	attemptId: string,
 	code: string
 ): Promise<VerifyCodeResult> {
-	const attempt = await db.query.loginCodes.findFirst({ where: eq(loginCodes.id, attemptId) });
-	if (!attempt || attempt.expiresAt.getTime() < Date.now()) return { ok: false, reason: 'expired' };
-	if (attempt.attempts >= MAX_CODE_ATTEMPTS) return { ok: false, reason: 'too_many_attempts' };
+	// Deneme hakkı, kod karşılaştırılmadan önce tek ve bölünmez bir sorguyla harcanır. Aynı anda gelen istekler
+	// sayacı aynı değerde göremez: sınır dolduysa satır dönmez ve kod hiç karşılaştırılmaz.
+	const [attempt] = await db
+		.update(loginCodes)
+		.set({ attempts: sql`${loginCodes.attempts} + 1` })
+		.where(
+			and(
+				eq(loginCodes.id, attemptId),
+				lt(loginCodes.attempts, MAX_CODE_ATTEMPTS),
+				gt(loginCodes.expiresAt, new Date())
+			)
+		)
+		.returning();
+	if (!attempt) {
+		const row = await db.query.loginCodes.findFirst({
+			where: eq(loginCodes.id, attemptId),
+			columns: { expiresAt: true }
+		});
+		const expired = !row || row.expiresAt.getTime() < Date.now();
+		return { ok: false, reason: expired ? 'expired' : 'too_many_attempts' };
+	}
 
 	const expected = await hmac(secret, `code:${attemptId}:${code.replace(/\D/g, '')}`);
 	if (!timingSafeEqual(expected, attempt.codeHash)) {
-		await db
-			.update(loginCodes)
-			.set({ attempts: attempt.attempts + 1 })
-			.where(eq(loginCodes.id, attemptId));
 		return {
 			ok: false,
-			reason: attempt.attempts + 1 >= MAX_CODE_ATTEMPTS ? 'too_many_attempts' : 'wrong_code'
+			reason: attempt.attempts >= MAX_CODE_ATTEMPTS ? 'too_many_attempts' : 'wrong_code'
 		};
 	}
 
