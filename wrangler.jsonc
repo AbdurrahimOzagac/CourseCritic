@@ -17,13 +17,13 @@
 			"binding": "DB",
 			"database_name": "coursecritic",
 			// `wrangler d1 create coursecritic` çıktısındaki id ile değiştirin
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "8cf89050-2adc-4652-aafe-2616971b5ed1",
 			"migrations_dir": "migrations"
 		}
 	],
 	"vars": {
 		"ALLOWED_EMAIL_DOMAINS": "hacettepe.edu.tr",
-		"EMAIL_FROM": "DersSeç <giris@example.com>",
+		"EMAIL_FROM": "DersSeç <onboarding@resend.dev>",
 		"CONTACT_EMAIL": ""
 	}
 }
