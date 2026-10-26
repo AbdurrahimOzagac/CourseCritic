@@ -11,7 +11,7 @@ SvelteKit kaynak kodundan doğrulandı. Açık 1 ve bazı "açık değil" sonuç
 | 1   | Admin verileri giriş yapmadan okunabiliyor                           | Orta                 | Kapatıldı |
 | 2   | Giriş kodu deneme sınırı eşzamanlı isteklerle aşılabiliyor           | Yüksek (başarılırsa) | Kapatıldı |
 | 3   | Giriş ekranı bir e-postanın banlı olup olmadığını söylüyor           | Orta                 | Kapatıldı |
-| 4   | "+" eklenmiş adreslerle tek posta kutusundan çok hesap açılabiliyor  | Orta                 | Açık      |
+| 4   | "+" eklenmiş adreslerle tek posta kutusundan çok hesap açılabiliyor  | Orta                 | Kapatıldı |
 | 5   | Hesap silip yeniden açarak tek kişi yorum gizletebiliyor             | Orta                 | Açık      |
 | 6   | Tarayıcıya kullanıcının kendi kimliği (`id`) gönderiliyor            | Düşük                | Açık      |
 | 7   | `ADMIN_EMAILS`'ten çıkarılan admin, yeniden giriş yapana kadar admin | Düşük                | Açık      |

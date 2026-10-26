@@ -25,7 +25,9 @@ export const actions: Actions = {
 		// Admin adresleri alan adı şartından muaftır (ör. Gmail ile yönetim)
 		const isAdmin = parseDomainList(locals.env.ADMIN_EMAILS).includes(email);
 		if (!isAdmin && !isAllowedEmail(email, domains)) {
-			return fail(400, { email, error: 'domain' as const });
+			// "+etiket" gibi ekler: alan adı doğru olsa da kabul edilmez (bkz. isAllowedEmail)
+			const tagged = /[+%]/.test(email.split('@')[0] ?? '');
+			return fail(400, { email, error: tagged ? ('tagged' as const) : ('domain' as const) });
 		}
 
 		// Ban burada kontrol edilmez: aksi halde posta kutusunun sahibi olmayan biri, bir adresin banlı olup olmadığını
