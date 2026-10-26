@@ -3,6 +3,7 @@ import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import type { Db } from './db';
 import { bannedEmails, loginCodes, sessions, users } from './db/schema';
 import { hmac, randomCode, randomToken, sha256, timingSafeEqual } from './crypto';
+import { normalizeEmail } from '../email';
 
 export const SESSION_COOKIE = 'sid';
 export const LOGIN_COOKIE = 'login_attempt';
@@ -16,6 +17,29 @@ const MAX_CODE_ATTEMPTS = 5;
 const MAX_CODES_PER_HOUR = 5;
 
 export type SessionUser = { id: string; role: 'user' | 'admin' };
+
+const adminHashCache = new Map<string, Promise<Set<string>>>();
+
+/**
+ * `ADMIN_EMAILS` listesindeki adreslerin özetleri. Rol veritabanına yazılmaz, her istekte buradan hesaplanır:
+ * listeden çıkarılan biri açık oturumunda da hemen admin yetkisini kaybeder.
+ */
+export function adminEmailHashes(
+	secret: string,
+	adminEmails: string | undefined
+): Promise<Set<string>> {
+	const key = adminEmails ?? '';
+	let hashes = adminHashCache.get(key);
+	if (!hashes) {
+		const list = key
+			.split(',')
+			.map((e) => normalizeEmail(e))
+			.filter(Boolean);
+		hashes = Promise.all(list.map((e) => emailHash(secret, e))).then((h) => new Set(h));
+		adminHashCache.set(key, hashes);
+	}
+	return hashes;
+}
 
 export function emailHash(secret: string, normalizedEmail: string) {
 	return hmac(secret, `email:${normalizedEmail}`);
@@ -31,8 +55,7 @@ export type RequestCodeResult =
 export async function createLoginCode(
 	db: Db,
 	secret: string,
-	hash: string,
-	isAdmin: boolean
+	hash: string
 ): Promise<RequestCodeResult> {
 	const now = Date.now();
 	await db.delete(loginCodes).where(lt(loginCodes.expiresAt, new Date(now - DAY)));
@@ -51,7 +74,6 @@ export async function createLoginCode(
 		id: attemptId,
 		emailHash: hash,
 		codeHash: await hmac(secret, `code:${attemptId}:${code}`),
-		isAdmin,
 		expiresAt: new Date(now + CODE_TTL)
 	});
 	return { ok: true, attemptId, code };
@@ -100,12 +122,12 @@ export async function verifyLoginCode(
 	await db.delete(loginCodes).where(eq(loginCodes.emailHash, attempt.emailHash));
 	if (await isBanned(db, attempt.emailHash)) return { ok: false, reason: 'banned' };
 
-	const role = attempt.isAdmin ? 'admin' : 'user';
-	const [user] = await db
-		.insert(users)
-		.values({ emailHash: attempt.emailHash, role })
-		.onConflictDoUpdate({ target: users.emailHash, set: { role } })
-		.returning({ id: users.id });
+	await db.insert(users).values({ emailHash: attempt.emailHash }).onConflictDoNothing();
+	const user = await db.query.users.findFirst({
+		where: eq(users.emailHash, attempt.emailHash),
+		columns: { id: true }
+	});
+	if (!user) return { ok: false, reason: 'expired' };
 	return { ok: true, userId: user.id };
 }
 
@@ -125,12 +147,16 @@ function setSessionCookie(cookies: Cookies, token: string, expiresAt: Date) {
 	});
 }
 
-export async function validateSession(db: Db, cookies: Cookies): Promise<SessionUser | null> {
+export async function validateSession(
+	db: Db,
+	cookies: Cookies,
+	admin: { secret: string; emails: string | undefined }
+): Promise<SessionUser | null> {
 	const token = cookies.get(SESSION_COOKIE);
 	if (!token) return null;
 	const id = await sha256(token);
 	const [row] = await db
-		.select({ userId: users.id, role: users.role, expiresAt: sessions.expiresAt })
+		.select({ userId: users.id, emailHash: users.emailHash, expiresAt: sessions.expiresAt })
 		.from(sessions)
 		.innerJoin(users, eq(users.id, sessions.userId))
 		.where(eq(sessions.id, id));
@@ -146,7 +172,8 @@ export async function validateSession(db: Db, cookies: Cookies): Promise<Session
 		await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, id));
 		setSessionCookie(cookies, token, expiresAt);
 	}
-	return { id: row.userId, role: row.role };
+	const admins = await adminEmailHashes(admin.secret, admin.emails);
+	return { id: row.userId, role: admins.has(row.emailHash) ? 'admin' : 'user' };
 }
 
 export async function destroySession(db: Db, cookies: Cookies) {

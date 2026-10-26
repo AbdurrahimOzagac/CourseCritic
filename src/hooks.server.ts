@@ -25,7 +25,10 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	const env = getEnv();
 	event.locals.env = env;
 	event.locals.db = getDb(env.DB);
-	event.locals.user = await validateSession(event.locals.db, event.cookies);
+	event.locals.user = await validateSession(event.locals.db, event.cookies, {
+		secret: env.AUTH_SECRET,
+		emails: env.ADMIN_EMAILS
+	});
 
 	// Admin bölümü burada korunur: sayfalar, veri istekleri ve form işlemleri için tek kontrol noktası
 	const access = adminAccess(event.route.id, event.locals.user);

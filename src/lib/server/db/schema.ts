@@ -29,9 +29,6 @@ const createdAt = () =>
 export const users = sqliteTable('users', {
 	id: id(),
 	emailHash: text('email_hash').notNull().unique(),
-	role: text('role', { enum: ['user', 'admin'] })
-		.notNull()
-		.default('user'),
 	createdAt: createdAt()
 });
 
@@ -47,8 +44,6 @@ export const loginCodes = sqliteTable(
 		id: id(),
 		emailHash: text('email_hash').notNull(),
 		codeHash: text('code_hash').notNull(),
-		/** Admin e-postası ile mi istendi? E-postayı saklamadan rolü taşımak için. */
-		isAdmin: integer('is_admin', { mode: 'boolean' }).notNull().default(false),
 		attempts: integer('attempts').notNull().default(0),
 		expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
 		createdAt: createdAt()

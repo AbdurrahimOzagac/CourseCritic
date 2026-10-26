@@ -35,7 +35,7 @@ export const actions: Actions = {
 		// bilgisi sadece kod doğrulandıktan sonra, yani sadece posta kutusunun sahibine gösterilir (verifyLoginCode).
 		const hash = await emailHash(locals.env.AUTH_SECRET, email);
 
-		const result = await createLoginCode(locals.db, locals.env.AUTH_SECRET, hash, isAdmin);
+		const result = await createLoginCode(locals.db, locals.env.AUTH_SECRET, hash);
 		if (!result.ok) return fail(429, { email, error: 'rate_limited' as const });
 
 		const sent = await sendLoginCode(locals.env, {
