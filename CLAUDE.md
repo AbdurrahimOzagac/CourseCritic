@@ -19,5 +19,7 @@ DersSeç / CourseCritic: öğrencilerin ders + hoca + dönem bazında değerlend
 - Anonimlik temel kural: e-posta adresi hiçbir yerde saklanmaz veya loglanmaz, istemciye `userId` gönderilmez
   (sadece `isMine` gibi boolean'lar). IP kaydı tutulmaz.
 - Görünür değerlendirme = `status = 'published'` ve hocası `approved`. Sorgular `queries.ts` içindeki `VISIBLE` koşulunu kullanır.
-- Admin action'ları `requireAdmin(event)` ile korunur (layout load action'ları korumaz).
+- Admin yetkisi `hooks.server.ts`'te `adminAccess(event.route.id, ...)` ile kontrol edilir. Layout `load`'una güvenme:
+  SvelteKit veri isteklerinde (`__data.json?x-sveltekit-invalidated=...`) layout `load`'larını atlayabilir.
+  Admin form işlemleri ayrıca `requireAdmin(event)` çağırır.
 - Gizli değerler `.dev.vars` (yerel) ve `wrangler secret` (canlı) içinde; repoya girmez.
