@@ -56,3 +56,50 @@ export function timingSafeEqual(a: string, b: string): boolean {
 	for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
 	return diff === 0;
 }
+
+const sealKeyCache = new Map<string, Promise<CryptoKey>>();
+
+/** AUTH_SECRET'tan türetilen, sadece şifreleme için kullanılan AES-GCM anahtarı. */
+function sealKey(secret: string): Promise<CryptoKey> {
+	let key = sealKeyCache.get(secret);
+	if (!key) {
+		key = crypto.subtle
+			.digest('SHA-256', encoder.encode(`seal:${secret}`))
+			.then((raw) => crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']));
+		sealKeyCache.set(secret, key);
+	}
+	return key;
+}
+
+/** Değeri AES-GCM ile şifreler (rastgele IV). Çıktı: base64url(iv | şifreli metin). */
+export async function seal(secret: string, value: string): Promise<string> {
+	const iv = crypto.getRandomValues(new Uint8Array(12));
+	const ct = new Uint8Array(
+		await crypto.subtle.encrypt(
+			{ name: 'AES-GCM', iv },
+			await sealKey(secret),
+			encoder.encode(value)
+		)
+	);
+	const out = new Uint8Array(iv.length + ct.length);
+	out.set(iv);
+	out.set(ct, iv.length);
+	return toBase64Url(out);
+}
+
+/** `seal` çıktısını çözer; bozuk ya da başka anahtarla şifrelenmişse null. */
+export async function unseal(secret: string, sealed: string): Promise<string | null> {
+	try {
+		const bytes = Uint8Array.from(atob(sealed.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
+			c.charCodeAt(0)
+		);
+		const pt = await crypto.subtle.decrypt(
+			{ name: 'AES-GCM', iv: bytes.slice(0, 12) },
+			await sealKey(secret),
+			bytes.slice(12)
+		);
+		return new TextDecoder().decode(pt);
+	} catch {
+		return null;
+	}
+}

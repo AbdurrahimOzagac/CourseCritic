@@ -104,8 +104,8 @@ export const actions: Actions = {
 			instructorPending = found.status === 'pending';
 		} else {
 			const created = await findOrCreateInstructor(locals.db, data.instructor, {
-				status: locals.user.role === 'admin' ? 'approved' : 'pending',
-				createdBy: locals.user.id
+				// Admin'in eklediği hoca da onaya düşer: hemen yayınlanan yorum, yazarın admin olduğunu belli ederdi
+				status: 'pending'
 			});
 			instructorId = created.id;
 			instructorPending = created.status === 'pending';

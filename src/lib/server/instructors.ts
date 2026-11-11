@@ -7,7 +7,7 @@ import { foldText, slugify } from '#lib/text.ts';
 export async function findOrCreateInstructor(
 	db: Db,
 	input: { title: string | null; name: string },
-	opts: { status: 'approved' | 'pending'; createdBy: string | null }
+	opts: { status: 'approved' | 'pending' }
 ): Promise<{ id: string; status: 'approved' | 'pending' }> {
 	const name = input.name.replace(/\s+/g, ' ').trim();
 	const folded = foldText(name);
@@ -24,8 +24,7 @@ export async function findOrCreateInstructor(
 			title: input.title?.trim() || null,
 			name,
 			slug,
-			status: opts.status,
-			createdBy: opts.createdBy
+			status: opts.status
 		})
 		.returning({ id: instructors.id, status: instructors.status });
 	return row;

@@ -23,6 +23,10 @@
 			<li>
 				A session cookie that keeps you signed in. Your language choice is stored in a cookie too.
 			</li>
+			<li>
+				Dates are stored only to the day, and records are not kept in the order they were created,
+				so your account and reviews cannot be matched to the time your sign-in e-mail was sent.
+			</li>
 			<li>We do not log IP addresses and do not use analytics or advertising trackers.</li>
 		</ul>
 		<h2>What others see</h2>
@@ -41,9 +45,9 @@
 			"My account" page.
 		</p>
 		<p>
-			When you delete your account, the reasons you wrote in your reports are deleted too. The
-			reports themselves keep counting, without any link to you, so that deleting and re-creating an
-			account cannot be used to report the same review again.
+			Your reports are never linked to your account: each is stored under a key that cannot be
+			traced back to you. They keep counting after you delete your account, so that deleting and
+			re-creating an account cannot be used to report the same review again.
 		</p>
 	{:else}
 		<h2>Ne saklıyoruz?</h2>
@@ -56,6 +60,10 @@
 			</li>
 			<li>Bu anonim hesaba bağlı değerlendirmelerin.</li>
 			<li>Seni içeride tutan bir oturum çerezi. Dil tercihin de bir çerezde saklanır.</li>
+			<li>
+				Tarihler sadece gün olarak saklanır ve kayıtlar oluşturulma sırasıyla tutulmaz; böylece
+				hesabın ve yorumların, giriş e-postanın gönderildiği saatle eşleştirilemez.
+			</li>
 			<li>IP adresi kaydı tutmuyoruz, analiz ya da reklam takibi kullanmıyoruz.</li>
 		</ul>
 		<h2>Başkaları ne görür?</h2>
@@ -74,9 +82,9 @@
 			içeriğiyle birlikte silebilirsin.
 		</p>
 		<p>
-			Hesabını sildiğinde bildirimlerinde yazdığın nedenler de silinir. Bildirimin kendisi, sana
-			bağlanamayacak şekilde sayılmaya devam eder; böylece hesap silip yeniden açarak aynı yorum
-			tekrar bildirilemez.
+			Bildirimlerin hiçbir zaman hesabına bağlı tutulmaz; her biri sana geri götürülemeyen bir
+			anahtarla saklanır. Hesabını silsen de sayılmaya devam ederler, böylece hesap silip yeniden
+			açarak aynı yorum tekrar bildirilemez.
 		</p>
 	{/if}
 	{#if data.contact}<p>{m.contact()}: <a href="mailto:{data.contact}">{data.contact}</a></p>{/if}

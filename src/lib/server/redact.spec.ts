@@ -15,4 +15,17 @@ describe('redact', () => {
 		expect(describeError(e)).toBe('Error: send failed for [e-posta] (neden: rejected: [e-posta])');
 		expect(describeError('plain veli@hacettepe.edu.tr')).toBe('plain [e-posta]');
 	});
+
+	it('drops query parameters from database errors', () => {
+		const e = new Error(
+			'Failed query: select * from reviews where user_id = ?\nparams: user-123,gizli yorum',
+			{
+				cause: new Error('D1_ERROR: no such table: reviews')
+			}
+		);
+		const out = describeError(e);
+		expect(out).toContain('no such table');
+		expect(out).not.toContain('user-123');
+		expect(out).not.toContain('gizli yorum');
+	});
 });

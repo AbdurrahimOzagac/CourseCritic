@@ -1,5 +1,5 @@
 import { error, fail, redirect } from '@sveltejs/kit';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { REPORT_HIDE_THRESHOLD } from '#lib/constants.ts';
 import { reporterKey } from '#lib/server/auth.ts';
 import { reports, reviews } from '#lib/server/db/schema.ts';
@@ -48,6 +48,23 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		locals.user?.id ?? null
 	);
 
+	// "Bildirdin" bilgisi bildirim anahtarından hesaplanır; bildirimler tabloda kimseye bağlı değildir
+	if (locals.user && reviewRows.length) {
+		const user = locals.user;
+		const keys = await Promise.all(
+			reviewRows.map((r) => reporterKey(locals.env.AUTH_SECRET, r.id, user.emailHash))
+		);
+		const reported = new Set(
+			(
+				await locals.db
+					.select({ reviewId: reports.reviewId })
+					.from(reports)
+					.where(inArray(reports.reporterKey, keys))
+			).map((r) => r.reviewId)
+		);
+		for (const r of reviewRows) r.reportedByMe = reported.has(r.id);
+	}
+
 	return {
 		course,
 		equivalents,
@@ -78,7 +95,7 @@ export const actions: Actions = {
 		const key = await reporterKey(locals.env.AUTH_SECRET, reviewId, locals.user.emailHash);
 		const inserted = await locals.db
 			.insert(reports)
-			.values({ reviewId, reporterKey: key, userId: locals.user.id, reason })
+			.values({ reviewId, reporterKey: key, reason })
 			.onConflictDoNothing()
 			.returning({ reviewId: reports.reviewId });
 		if (inserted.length) {

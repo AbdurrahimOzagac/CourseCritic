@@ -29,7 +29,7 @@ export const actions: Actions = {
 		}
 
 		cookies.delete(LOGIN_COOKIE, { path: '/giris' });
-		await createSession(locals.db, cookies, result.userId);
+		await createSession(locals.db, cookies, result.userId, result.remember);
 		redirect(303, attempt.r);
 	}
 };

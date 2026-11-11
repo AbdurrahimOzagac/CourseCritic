@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		JOIN courses c ON c.id = r.course_id
 		JOIN instructors i ON i.id = r.instructor_id
 		WHERE r.user_id = ${locals.user.id}
-		ORDER BY r.created_at DESC
+		ORDER BY r.created_at DESC, r.id
 	`);
 	return { reviews };
 };

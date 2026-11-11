@@ -55,7 +55,7 @@ export const actions: Actions = {
 	},
 
 	instructors: async (event) => {
-		const admin = requireAdmin(event);
+		requireAdmin(event);
 		const rows = parseCsv(await readCsv(await event.request.formData()));
 		if (!rows.length) return fail(400, { kind: 'instructors', error: 'empty' });
 
@@ -76,7 +76,7 @@ export const actions: Actions = {
 			const instructor = await findOrCreateInstructor(
 				event.locals.db,
 				{ title: row.title || null, name },
-				{ status: 'approved', createdBy: admin.id }
+				{ status: 'approved' }
 			);
 			processed++;
 			for (const code of (row.courses ?? '')

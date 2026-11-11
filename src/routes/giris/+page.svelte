@@ -54,6 +54,13 @@
 				class="w-full"
 			/>
 		</div>
+		<label class="flex items-start gap-2 text-sm text-slate-700">
+			<input type="checkbox" name="remember" class="mt-0.5" />
+			<span>
+				{m.login_remember()}
+				<span class="block text-xs text-slate-500">{m.login_remember_hint()}</span>
+			</span>
+		</label>
 		{#if errorText}<p class="text-sm text-red-700">{errorText}</p>{/if}
 		<button class="btn btn-primary" disabled={submitting}>{m.login_send_code()}</button>
 	</form>

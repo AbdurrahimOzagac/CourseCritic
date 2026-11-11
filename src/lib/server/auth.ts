@@ -1,8 +1,8 @@
 import type { Cookies } from '@sveltejs/kit';
 import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import type { Db } from './db';
-import { bannedEmails, loginCodes, reports, sessions, users } from './db/schema';
-import { hmac, randomCode, randomToken, sha256, timingSafeEqual } from './crypto';
+import { bannedEmails, loginCodes, sessions, users } from './db/schema';
+import { hmac, randomCode, randomToken, seal, sha256, timingSafeEqual, unseal } from './crypto';
 import { normalizeEmail } from '../email';
 import { dayStart } from './time';
 
@@ -11,8 +11,6 @@ export const LOGIN_COOKIE = 'login_attempt';
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
-/** Uzun oturum: mezunlar okul e-postası kapandıktan sonra da bir süre içeride kalabilsin. */
-const SESSION_TTL = 365 * DAY;
 const SESSION_RENEW_BEFORE = 180 * DAY;
 const CODE_TTL = 10 * 60 * 1000;
 const MAX_CODE_ATTEMPTS = 5;
@@ -44,9 +42,18 @@ export function adminEmailHashes(
 	return hashes;
 }
 
-/** Oturum bitişi güne yuvarlanır: giriş anı oturum kaydından çıkarılamasın (bkz. time.ts). */
-function sessionExpiry() {
-	return dayStart(new Date(Date.now() + SESSION_TTL));
+/** 0..max-1 arası eşit dağılımlı rastgele tam sayı. */
+function randomInt(max: number) {
+	return crypto.getRandomValues(new Uint32Array(1))[0] % max;
+}
+
+/**
+ * Oturum bitişi güne yuvarlanır ve rastgele kaydırılır: kayıttan giriş günü çıkarılamaz (bkz. time.ts).
+ * Kalıcı: 300–420 gün. Geçici: 1–3 gün (çerez zaten tarayıcı kapanınca biter).
+ */
+function sessionExpiry(persistent: boolean) {
+	const days = persistent ? 300 + randomInt(121) : 1 + randomInt(3);
+	return dayStart(new Date(Date.now() + days * DAY));
 }
 
 export function emailHash(secret: string, normalizedEmail: string) {
@@ -60,27 +67,36 @@ export async function isBanned(db: Db, hash: string) {
 export type RequestCodeResult =
 	{ ok: true; attemptId: string; code: string } | { ok: false; reason: 'rate_limited' };
 
+/**
+ * Kod satırında hesap özeti açık tutulmaz. Aksi halde veritabanını okuyabilen biri giriş formuna bir öğrencinin
+ * adresini yazıp oluşan satırdan hesabını (ve yorumlarını) bulabilirdi. Saatlik sınır ayrı bir anahtarla tutulur,
+ * hesap özeti şifreli saklanır ve sadece kod doğrulandıktan sonra açılır.
+ */
 export async function createLoginCode(
 	db: Db,
 	secret: string,
-	hash: string
+	normalizedEmail: string,
+	remember: boolean
 ): Promise<RequestCodeResult> {
 	const now = Date.now();
-	// Kodlar, saatlik sınır için gereken 1 saatten fazla saklanmaz (e-posta özeti + tam zaman içerirler)
+	// Kodlar, saatlik sınır için gereken 1 saatten fazla saklanmaz
 	await db.delete(loginCodes).where(lt(loginCodes.createdAt, new Date(now - HOUR)));
 
+	const rateKey = await hmac(secret, `rl:${normalizedEmail}`);
 	const recent = await db
 		.select({ id: loginCodes.id })
 		.from(loginCodes)
-		.where(and(eq(loginCodes.emailHash, hash), gt(loginCodes.createdAt, new Date(now - HOUR))));
+		.where(and(eq(loginCodes.rateKey, rateKey), gt(loginCodes.createdAt, new Date(now - HOUR))));
 	if (recent.length >= MAX_CODES_PER_HOUR) return { ok: false, reason: 'rate_limited' };
 
 	const attemptId = crypto.randomUUID();
 	const code = randomCode();
 	await db.insert(loginCodes).values({
 		id: attemptId,
-		emailHash: hash,
+		rateKey,
+		accountSealed: await seal(secret, await emailHash(secret, normalizedEmail)),
 		codeHash: await hmac(secret, `code:${attemptId}:${code}`),
+		remember,
 		expiresAt: new Date(now + CODE_TTL),
 		createdAt: new Date(now)
 	});
@@ -88,7 +104,7 @@ export async function createLoginCode(
 }
 
 export type VerifyCodeResult =
-	| { ok: true; userId: string }
+	| { ok: true; userId: string; remember: boolean }
 	| { ok: false; reason: 'expired' | 'wrong_code' | 'too_many_attempts' | 'banned' };
 
 export async function verifyLoginCode(
@@ -127,31 +143,39 @@ export async function verifyLoginCode(
 		};
 	}
 
-	await db.delete(loginCodes).where(eq(loginCodes.emailHash, attempt.emailHash));
-	if (await isBanned(db, attempt.emailHash)) return { ok: false, reason: 'banned' };
+	// Bu adres için bekleyen tüm kodlar silinir; hesap özeti sadece burada, kod doğrulandıktan sonra açılır
+	await db.delete(loginCodes).where(eq(loginCodes.rateKey, attempt.rateKey));
+	const accountHash = await unseal(secret, attempt.accountSealed);
+	if (!accountHash) return { ok: false, reason: 'expired' };
+	if (await isBanned(db, accountHash)) return { ok: false, reason: 'banned' };
 
-	await db.insert(users).values({ emailHash: attempt.emailHash }).onConflictDoNothing();
+	await db.insert(users).values({ emailHash: accountHash }).onConflictDoNothing();
 	const user = await db.query.users.findFirst({
-		where: eq(users.emailHash, attempt.emailHash),
+		where: eq(users.emailHash, accountHash),
 		columns: { id: true }
 	});
 	if (!user) return { ok: false, reason: 'expired' };
-	return { ok: true, userId: user.id };
+	return { ok: true, userId: user.id, remember: attempt.remember };
 }
 
-export async function createSession(db: Db, cookies: Cookies, userId: string) {
+/**
+ * persistent: "bu cihazda açık kalsın" seçildi → uzun ömürlü çerez, kullanıldıkça uzar.
+ * Değilse tarayıcı kapanınca biten çerez ve birkaç gün içinde sona eren kayıt (ortak bilgisayarlar için).
+ */
+export async function createSession(db: Db, cookies: Cookies, userId: string, persistent: boolean) {
+	await db.delete(sessions).where(lt(sessions.expiresAt, new Date()));
 	const token = randomToken();
-	const expiresAt = sessionExpiry();
-	await db.insert(sessions).values({ id: await sha256(token), userId, expiresAt });
-	setSessionCookie(cookies, token, expiresAt);
+	const expiresAt = sessionExpiry(persistent);
+	await db.insert(sessions).values({ id: await sha256(token), userId, expiresAt, persistent });
+	setSessionCookie(cookies, token, persistent ? expiresAt : null);
 }
 
-function setSessionCookie(cookies: Cookies, token: string, expiresAt: Date) {
+function setSessionCookie(cookies: Cookies, token: string, expiresAt: Date | null) {
 	cookies.set(SESSION_COOKIE, token, {
 		path: '/',
 		httpOnly: true,
 		sameSite: 'lax',
-		expires: expiresAt
+		...(expiresAt ? { expires: expiresAt } : {})
 	});
 }
 
@@ -164,7 +188,12 @@ export async function validateSession(
 	if (!token) return null;
 	const id = await sha256(token);
 	const [row] = await db
-		.select({ userId: users.id, emailHash: users.emailHash, expiresAt: sessions.expiresAt })
+		.select({
+			userId: users.id,
+			emailHash: users.emailHash,
+			expiresAt: sessions.expiresAt,
+			persistent: sessions.persistent
+		})
 		.from(sessions)
 		.innerJoin(users, eq(users.id, sessions.userId))
 		.where(eq(sessions.id, id));
@@ -175,8 +204,8 @@ export async function validateSession(
 		return null;
 	}
 
-	if (row.expiresAt.getTime() - Date.now() < SESSION_RENEW_BEFORE) {
-		const expiresAt = sessionExpiry();
+	if (row.persistent && row.expiresAt.getTime() - Date.now() < SESSION_RENEW_BEFORE) {
+		const expiresAt = sessionExpiry(true);
 		await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, id));
 		setSessionCookie(cookies, token, expiresAt);
 	}
@@ -195,15 +224,12 @@ export async function destroySession(db: Db, cookies: Cookies) {
 }
 
 /**
- * Kullanıcıyı ve içeriğini siler: değerlendirmeler, öneriler ve oturumlar silinir (FK cascade), yaptığı bildirimlerin
- * neden metinleri temizlenir. Bildirimin kendisi kimliğe bağlanamayan anahtarıyla sayılmaya devam eder; aksi halde
- * hesabı silip yeniden açarak aynı yorum tekrar bildirilebilirdi.
+ * Kullanıcıyı ve içeriğini siler: değerlendirmeler, öneriler ve oturumlar silinir (FK cascade). Yaptığı bildirimler
+ * zaten kimseye bağlı değildir (yorum başına anahtar); sayılmaya devam eder, aksi halde hesabı silip yeniden açarak
+ * aynı yorum tekrar bildirilebilirdi.
  */
 function deleteUserStatements(db: Db, userId: string) {
-	return [
-		db.update(reports).set({ reason: null }).where(eq(reports.userId, userId)),
-		db.delete(users).where(eq(users.id, userId))
-	] as const;
+	return [db.delete(users).where(eq(users.id, userId))] as const;
 }
 
 export async function deleteUser(db: Db, userId: string) {

@@ -42,6 +42,10 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'same-origin');
 	response.headers.set('X-Frame-Options', 'DENY');
+	// Giriş yapmış kullanıcıya ya da giriş akışına ait sayfalar hiçbir önbellekte (ortak bilgisayar dahil) tutulmaz
+	if (event.locals.user || event.url.pathname.startsWith('/giris')) {
+		response.headers.set('Cache-Control', 'private, no-store');
+	}
 	return response;
 };
 

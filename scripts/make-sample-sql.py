@@ -74,10 +74,10 @@ for (cid, iid) in links:
         rid = uid(f'review:{cid}:{iid}:{n}')
         out.append(
             'INSERT OR IGNORE INTO reviews (id, user_id, course_id, instructor_id, academic_year, term, difficulty, workload, teaching_value, '
-            'instructor_clarity, instructor_attitude, instructor_expertise, attempts, outcome, class_average, curve, comment) VALUES '
+            'instructor_clarity, instructor_attitude, instructor_expertise, attempts, outcome, class_average, curve, comment, created_at) VALUES '
             f"({q(rid)}, {q(users[n])}, {q(cid)}, {q(iid)}, {year}, {q(term)}, {r()}, {r()}, {r()}, {r()}, {r()}, {r()}, "
             f"{q(random.choice([None, 1, 1, 2]))}, {q(random.choice([None, 'passed', 'passed', 'failed', 'dropped']))}, "
-            f"{q(random.choice([None, 45, 55, 62]))}, {q(random.choice([None, 'yes', 'no']))}, {q(random.choice(comments))});"
+            f"{q(random.choice([None, 45, 55, 62]))}, {q(random.choice([None, 'yes', 'no']))}, {q(random.choice(comments))}, unixepoch() / 86400 * 86400);"
         )
 
 print('\n'.join(out))

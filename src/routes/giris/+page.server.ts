@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { dev } from '$app/env';
 import { m } from '#lib/paraglide/messages.js';
-import { createLoginCode, emailHash, LOGIN_COOKIE } from '#lib/server/auth.ts';
+import { createLoginCode, LOGIN_COOKIE } from '#lib/server/auth.ts';
 import { isAllowedEmail, normalizeEmail, parseDomainList } from '#lib/email.ts';
 import { sendLoginCode } from '#lib/server/mail.ts';
 import { safeRedirectPath } from '#lib/server/redirect.ts';
@@ -33,9 +33,8 @@ export const actions: Actions = {
 		// Ban burada kontrol edilmez: aksi halde posta kutusunun sahibi olmayan biri, bir adresin banlı olup olmadığını
 		// öğrenebilir (ör. silinen bir yorumun yazarını tespit etmek için). Banlı adrese de kod gönderilir; "banlısın"
 		// bilgisi sadece kod doğrulandıktan sonra, yani sadece posta kutusunun sahibine gösterilir (verifyLoginCode).
-		const hash = await emailHash(locals.env.AUTH_SECRET, email);
-
-		const result = await createLoginCode(locals.db, locals.env.AUTH_SECRET, hash);
+		const remember = form.get('remember') === 'on';
+		const result = await createLoginCode(locals.db, locals.env.AUTH_SECRET, email, remember);
 		if (!result.ok) return fail(429, { email, error: 'rate_limited' as const });
 
 		const sent = await sendLoginCode(locals.env, {

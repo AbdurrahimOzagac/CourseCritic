@@ -21,7 +21,14 @@ DersSeç / CourseCritic: öğrencilerin ders + hoca + dönem bazında değerlend
 - Görünür değerlendirme = `status = 'published'` ve hocası `approved`. Sorgular `queries.ts` içindeki `VISIBLE` koşulunu kullanır.
 - Bildirimler kişiyi `reporterKey(secret, reviewId, emailHash)` ile tanır, `user_id` ile değil (hesap silinince
   `user_id` boşalır, bildirim sayılmaya devam eder). Gizleme kararı `dismissed = 0` bildirimler sayılarak verilir.
-- Kullanıcı silmek için `deleteUser` / `banUser` kullan (bildirim nedenlerini de temizler).
+- Kullanıcı silmek için `deleteUser` / `banUser` kullan.
+- E-posta gizliliği (bkz. docs/guvenlik-incelemesi-2026-10.md, "E-posta gizliliği"):
+  - Veritabanına yazılan zamanlar güne yuvarlanır (`dayStart()`); `createdAt()` yardımcısına `.default(sql…)` ekleme
+    (Drizzle o zaman `$defaultFn`'i çalıştırmaz).
+  - Kimlikle ilgili tablolar `WITHOUT ROWID` (eklenme sırası okunamasın). Bu tabloları yeniden kuran migration'ı elle yaz;
+    `migrations.spec.ts` denetler.
+  - `login_codes` hesap özetini açık tutmaz (`rateKey` + şifreli `accountSealed`). `reports` kullanıcıya bağlanmaz.
+  - Hata loglarına sadece `describeError()` çıktısı yazılır (e-posta ve sorgu parametreleri maskelenir).
 - Admin yetkisi `hooks.server.ts`'te `adminAccess(event.route.id, ...)` ile kontrol edilir. Layout `load`'una güvenme:
   SvelteKit veri isteklerinde (`__data.json?x-sveltekit-invalidated=...`) layout `load`'larını atlayabilir.
   Admin form işlemleri ayrıca `requireAdmin(event)` çağırır.

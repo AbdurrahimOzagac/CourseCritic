@@ -30,31 +30,43 @@ const createdAt = () =>
 //
 // Anonimlik: e-posta adresi hiçbir tabloda açık metin olarak tutulmaz. Sadece
 // AUTH_SECRET ile alınmış HMAC özeti saklanır (bkz. lib/server/crypto.ts).
+//
+// Kimlikle ilgili tablolar (users, sessions, reviews, reports, login_codes, banned_emails,
+// course_suggestions) veritabanında WITHOUT ROWID olarak durur: satırlar rastgele UUID sırasıyla
+// saklanır ve dışa aktarılır, eklenme sırası (kim ne zaman giriş yaptı / yazdı) okunamaz.
+// Drizzle bunu bilmez; tabloyu yeniden kuran bir migration yazarken korunmalı (migrations.spec.ts denetler).
 // ---------------------------------------------------------------------------
 
 export const users = sqliteTable('users', {
 	id: id(),
-	emailHash: text('email_hash').notNull().unique(),
-	createdAt: createdAt()
+	emailHash: text('email_hash').notNull().unique()
 });
 
 /** Banlanan e-posta özetleri. Kullanıcı ve içerikleri silinir, özet burada kalır. */
 export const bannedEmails = sqliteTable('banned_emails', {
-	emailHash: text('email_hash').primaryKey(),
-	createdAt: createdAt()
+	emailHash: text('email_hash').primaryKey()
 });
 
+/**
+ * Giriş kodları (en fazla 1 saat saklanır). Hesap özeti burada açık durmaz: aksi halde veritabanını okuyabilen
+ * biri, giriş formuna bir öğrencinin adresini yazıp oluşan satırdan o öğrencinin hesabını bulabilirdi.
+ */
 export const loginCodes = sqliteTable(
 	'login_codes',
 	{
 		id: id(),
-		emailHash: text('email_hash').notNull(),
+		/** HMAC(AUTH_SECRET, 'rl:' + e-posta): sadece saatlik sınır için, hesap özetinden farklı. */
+		rateKey: text('rate_key').notNull(),
+		/** Hesap özeti, AUTH_SECRET'tan türetilen anahtarla AES-GCM şifreli. */
+		accountSealed: text('account_sealed').notNull(),
 		codeHash: text('code_hash').notNull(),
 		attempts: integer('attempts').notNull().default(0),
+		/** Bu cihazda oturum açık kalsın mı (girişte işaretlenen kutu). */
+		remember: integer('remember', { mode: 'boolean' }).notNull().default(false),
 		expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
 		createdAt: createdAt()
 	},
-	(t) => [index('login_codes_email_idx').on(t.emailHash)]
+	(t) => [index('login_codes_rate_idx').on(t.rateKey)]
 );
 
 export const sessions = sqliteTable(
@@ -65,7 +77,10 @@ export const sessions = sqliteTable(
 		userId: text('user_id')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
-		expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
+		/** Gün başına yuvarlanmış ve rastgele kaydırılmış bitiş: giriş günü bundan çıkarılamaz. */
+		expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+		/** "Bu cihazda açık kalsın" seçildiyse true: uzun süreli ve kullanıldıkça uzar. */
+		persistent: integer('persistent', { mode: 'boolean' }).notNull().default(false)
 	},
 	(t) => [index('sessions_user_idx').on(t.userId)]
 );
@@ -232,18 +247,12 @@ export const reports = sqliteTable(
 		 * olduğu için bir kişinin farklı yorumlara yaptığı bildirimler birbirine bağlanamaz.
 		 */
 		reporterKey: text('reporter_key').notNull(),
-		/** Sadece "bildirdin" göstermek için. Hesap silinince boşalır, bildirim sayılmaya devam eder. */
-		userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
-		/** Hesap silinince temizlenir (kişinin yazdığı içerik). */
+		/** Bildirim nedeni. Kimseye bağlı değildir (tabloda kullanıcı kimliği yok). */
 		reason: text('reason'),
 		/** Admin yorumu geri açınca işaretlenir: artık sayılmaz, aynı kişi o yorumu tekrar bildiremez. */
-		dismissed: integer('dismissed', { mode: 'boolean' }).notNull().default(false),
-		createdAt: createdAt()
+		dismissed: integer('dismissed', { mode: 'boolean' }).notNull().default(false)
 	},
-	(t) => [
-		primaryKey({ columns: [t.reviewId, t.reporterKey] }),
-		index('reports_user_idx').on(t.userId)
-	]
+	(t) => [primaryKey({ columns: [t.reviewId, t.reporterKey] })]
 );
 
 /** Öğrencilerin ders bilgisi düzeltme / yeni ders önerileri. Admin onaylayınca uygulanır. */

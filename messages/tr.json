@@ -173,6 +173,8 @@
 	"login_intro": "Değerlendirme yazmak için üniversite e-posta adresinle ({domains}) giriş yap. Şifre yok: adresine 6 haneli bir kod göndereceğiz.",
 	"login_email": "Üniversite e-posta adresi",
 	"login_send_code": "Kod gönder",
+	"login_remember": "Bu cihazda oturumum açık kalsın",
+	"login_remember_hint": "Ortak ya da laboratuvar bilgisayarında işaretleme. İşaretlemezsen tarayıcıyı kapatınca çıkış yapılır.",
 	"login_error_domain": "Sadece {domains} uzantılı adreslerle giriş yapılabilir.",
 	"login_error_tagged": "Adresini \"+\" gibi ekler olmadan, olduğu gibi yaz (ör. ad.soyad@hacettepe.edu.tr).",
 	"login_error_banned": "Bu hesap kurallara aykırı içerik nedeniyle kalıcı olarak uzaklaştırıldı.",

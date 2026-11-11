@@ -98,7 +98,7 @@ export const actions: Actions = {
 		const instructor = await findOrCreateInstructor(
 			event.locals.db,
 			{ title: field(form, 'title') || null, name },
-			{ status: 'approved', createdBy: event.locals.user!.id }
+			{ status: 'approved' }
 		);
 		const { ids, missing } = await courseIdsFromCodes(event.locals.db, field(form, 'courses'));
 		if (ids.length) {

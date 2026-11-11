@@ -111,7 +111,48 @@ Düzeltmeler 26 Ekim 2026'da canlıya alındı (Worker sürümü `0f01ddf9`, mig
 
 ---
 
-## Kabul edilen riskler (bilinçli olarak düzeltilmedi)
+## E-posta gizliliği (Kasım 2026)
+
+Soru: bir öğrencinin e-posta adresi sızabilir mi, ya da bir yorum/hesap belirli bir öğrenciyle eşleştirilebilir mi?
+Ölçüm: yerelde benzersiz bir adresle giriş + değerlendirme yapılıp veritabanının tamamında ve loglarda adres arandı:
+adres hiçbir yerde yok. Sonra bağımsız bir gizlilik incelemesi yapıldı; bulgular ve durumları:
+
+| #   | Bulgu                                                                                        | Önem        | Durum                |
+| --- | -------------------------------------------------------------------------------------------- | ----------- | -------------------- |
+| E1  | Veritabanını okuyabilen biri giriş formuyla bir adresin hesabını bulabiliyordu (login_codes) | Yüksek      | Kapatıldı            |
+| E2  | Eklenme sırası (rowid) gün yuvarlamasını boşa çıkarıyordu                                    | Yüksek      | Kapatıldı            |
+| E3  | Oturum kayıtları her girişin gününü bir yıl saklıyordu                                       | Orta-Yüksek | Kapatıldı            |
+| E4  | Kullanılmayan giriş kodları tam zamanlarıyla günlerce kalabiliyordu                          | Orta        | Kapatıldı            |
+| E5  | Aynı gündeki yorumlar eklenme sırasıyla listeleniyordu                                       | Orta        | Kapatıldı (sıralama) |
+| E6  | Yorum hemen yayınlandığı için gönderim saati dışarıdan izlenebiliyor                         | Orta        | Karar bekliyor       |
+| E7  | Küçük sınıflarda "3. kez aldı, kaldı" gibi alanlar yazarı belli edebilir                     | Orta        | Karar bekliyor       |
+| E8  | Veritabanı hata loglarına sorgu parametreleri düşebiliyordu                                  | Düşük-Orta  | Kapatıldı            |
+| E9  | Bildirimler hesap varken kullanıcıya bağlıydı                                                | Düşük       | Kapatıldı            |
+| E10 | Giriş ekranı Hacettepe dışı admin adresini belli ediyor                                      | Düşük       | Kabul edildi         |
+| E11 | Admin'in eklediği hoca hemen onaylandığı için admin'in yorumu belli oluyordu                 | Düşük       | Kapatıldı            |
+| E12 | Saatlik kod sınırı mesajı yakın zamandaki girişleri belli ediyor                             | Düşük       | Turnstile ile        |
+| E13 | 1 yıllık oturum ortak bilgisayarlarda risk                                                   | Düşük       | Kapatıldı            |
+
+Yapılanlar:
+
+- Zamanlar güne yuvarlanır; kimlikle ilgili tablolar `WITHOUT ROWID` (rastgele UUID sırası); oturum bitişi rastgele
+  kaydırılır; kullanılmayan alanlar (`users.created_at`, `reports.user_id` vb.) kaldırıldı (migration 0003, 0004).
+- Giriş kodu satırında hesap özeti yok: saatlik sınır ayrı bir HMAC ile, hesap özeti AES-GCM ile şifreli tutulur ve
+  sadece kod doğrulanınca açılır. Kodlar en fazla 1 saat saklanır.
+- "Bu cihazda açık kalsın" kutusu (varsayılan kapalı): işaretlenmezse tarayıcı kapanınca oturum biter. Giriş yapmış
+  sayfalar `Cache-Control: private, no-store`.
+- Hata logları tek satır, e-posta ve sorgu parametresi içermez. Font kendi sitemizden, CSP sadece kendi sitemize izin
+  verir.
+
+Uygulamanın kontrolü dışında kalanlar:
+
+- E-posta sağlayıcısı (Resend) alıcı adresini, gönderim zamanını ve içeriği kendi saklama süresi boyunca tutar.
+- Üniversitenin e-posta sunucusu bir öğrenciye DersSeç'ten e-posta geldiğini ve saatini görür (kimin ne yazdığını değil).
+- Cloudflare isteğin IP adresini ve zamanını kenar sunucuda görür. D1 Time Travel geçmiş veritabanı durumlarını bir süre
+  saklar; Cloudflare hesabına erişen biri bunları geri yükleyebilir.
+- `AUTH_SECRET` ya da Cloudflare'e kod yükleme yetkisi olan biri, öğrenci listesini deneyerek hesapları eşleştirebilir
+  ya da adresleri kaydeden kod yükleyebilir. Bunu sadece hesap güvenliği (2FA, dar yetkili anahtarlar) önler.
+- Yorumun içeriği ya da yazım üslubu yazarı belli edebilir.
 
 - **Gizlenen yorumun yeniden yazılması:** Yazar gizlenen yorumunu silip yeniden yazabilir. Tekrarlayanlar admin
   tarafından banlanır.

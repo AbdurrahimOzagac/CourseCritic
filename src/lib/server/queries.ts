@@ -149,7 +149,6 @@ export interface ReviewRow {
 
 type RawReview = Omit<ReviewRow, 'instructor' | 'isMine' | 'reportedByMe' | 'edited'> & {
 	isMine: number;
-	reportedByMe: number;
 	edited: number;
 	iId: string;
 	iSlug: string;
@@ -176,17 +175,16 @@ export async function getCourseReviews(
 			r.attempts, r.outcome, r.class_average AS classAverage, r.curve, r.comment,
 			r.updated_at IS NOT NULL AS edited,
 			r.user_id = ${userId ?? ''} AS isMine,
-			EXISTS (SELECT 1 FROM reports p WHERE p.review_id = r.id AND p.user_id = ${userId ?? ''}) AS reportedByMe,
 			i.id AS iId, i.slug AS iSlug, i.title AS iTitle, i.name AS iName
 		FROM reviews r
 		JOIN instructors i ON i.id = r.instructor_id
 		WHERE ${sql.join(conditions, sql` AND `)}
-		ORDER BY r.academic_year DESC, ${TERM_ORDER_SQL} DESC, r.created_at DESC
+		ORDER BY r.academic_year DESC, ${TERM_ORDER_SQL} DESC, r.created_at DESC, r.id
 	`);
-	return rows.map(({ iId, iSlug, iTitle, iName, isMine, reportedByMe, edited, ...r }) => ({
+	return rows.map(({ iId, iSlug, iTitle, iName, isMine, edited, ...r }) => ({
 		...r,
 		isMine: !!isMine,
-		reportedByMe: !!reportedByMe,
+		reportedByMe: false,
 		edited: !!edited,
 		instructor: { id: iId, slug: iSlug, title: iTitle, name: iName }
 	}));
