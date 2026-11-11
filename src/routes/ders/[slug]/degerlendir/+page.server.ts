@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { reviews } from '#lib/server/db/schema.ts';
+import { dayStart } from '#lib/server/time.ts';
 import { findOrCreateInstructor } from '#lib/server/instructors.ts';
 import {
 	courseInstructorIds,
@@ -133,7 +134,7 @@ export const actions: Actions = {
 			if (reviewId) {
 				const updated = await locals.db
 					.update(reviews)
-					.set({ ...values, updatedAt: new Date() })
+					.set({ ...values, updatedAt: dayStart() })
 					.where(and(eq(reviews.id, reviewId), eq(reviews.userId, locals.user.id)))
 					.returning({ id: reviews.id });
 				if (!updated.length) error(404);

@@ -4,11 +4,13 @@ import type { Db } from './db';
 import { bannedEmails, loginCodes, reports, sessions, users } from './db/schema';
 import { hmac, randomCode, randomToken, sha256, timingSafeEqual } from './crypto';
 import { normalizeEmail } from '../email';
+import { dayStart } from './time';
 
 export const SESSION_COOKIE = 'sid';
 export const LOGIN_COOKIE = 'login_attempt';
 
-const DAY = 24 * 60 * 60 * 1000;
+const HOUR = 60 * 60 * 1000;
+const DAY = 24 * HOUR;
 /** Uzun oturum: mezunlar okul e-postası kapandıktan sonra da bir süre içeride kalabilsin. */
 const SESSION_TTL = 365 * DAY;
 const SESSION_RENEW_BEFORE = 180 * DAY;
@@ -42,6 +44,11 @@ export function adminEmailHashes(
 	return hashes;
 }
 
+/** Oturum bitişi güne yuvarlanır: giriş anı oturum kaydından çıkarılamasın (bkz. time.ts). */
+function sessionExpiry() {
+	return dayStart(new Date(Date.now() + SESSION_TTL));
+}
+
 export function emailHash(secret: string, normalizedEmail: string) {
 	return hmac(secret, `email:${normalizedEmail}`);
 }
@@ -59,14 +66,13 @@ export async function createLoginCode(
 	hash: string
 ): Promise<RequestCodeResult> {
 	const now = Date.now();
-	await db.delete(loginCodes).where(lt(loginCodes.expiresAt, new Date(now - DAY)));
+	// Kodlar, saatlik sınır için gereken 1 saatten fazla saklanmaz (e-posta özeti + tam zaman içerirler)
+	await db.delete(loginCodes).where(lt(loginCodes.createdAt, new Date(now - HOUR)));
 
 	const recent = await db
 		.select({ id: loginCodes.id })
 		.from(loginCodes)
-		.where(
-			and(eq(loginCodes.emailHash, hash), gt(loginCodes.createdAt, new Date(now - 60 * 60 * 1000)))
-		);
+		.where(and(eq(loginCodes.emailHash, hash), gt(loginCodes.createdAt, new Date(now - HOUR))));
 	if (recent.length >= MAX_CODES_PER_HOUR) return { ok: false, reason: 'rate_limited' };
 
 	const attemptId = crypto.randomUUID();
@@ -75,7 +81,8 @@ export async function createLoginCode(
 		id: attemptId,
 		emailHash: hash,
 		codeHash: await hmac(secret, `code:${attemptId}:${code}`),
-		expiresAt: new Date(now + CODE_TTL)
+		expiresAt: new Date(now + CODE_TTL),
+		createdAt: new Date(now)
 	});
 	return { ok: true, attemptId, code };
 }
@@ -134,7 +141,7 @@ export async function verifyLoginCode(
 
 export async function createSession(db: Db, cookies: Cookies, userId: string) {
 	const token = randomToken();
-	const expiresAt = new Date(Date.now() + SESSION_TTL);
+	const expiresAt = sessionExpiry();
 	await db.insert(sessions).values({ id: await sha256(token), userId, expiresAt });
 	setSessionCookie(cookies, token, expiresAt);
 }
@@ -169,7 +176,7 @@ export async function validateSession(
 	}
 
 	if (row.expiresAt.getTime() - Date.now() < SESSION_RENEW_BEFORE) {
-		const expiresAt = new Date(Date.now() + SESSION_TTL);
+		const expiresAt = sessionExpiry();
 		await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, id));
 		setSessionCookie(cookies, token, expiresAt);
 	}

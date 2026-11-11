@@ -8,16 +8,22 @@ import {
 	text,
 	uniqueIndex
 } from 'drizzle-orm/sqlite-core';
+import { dayStart } from '../time';
 import { COURSE_KINDS, CURVE_ANSWERS, OUTCOMES, TERMS } from '../../constants';
 
 const id = () =>
 	text('id')
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID());
+/**
+ * Güne yuvarlanmış oluşturulma zamanı (bkz. lib/server/time.ts). Değeri her eklemede uygulama yazar.
+ * Burada `.default(sql…)` olmamalı: Drizzle SQL varsayılanı varsa `$defaultFn`'i çalıştırmaz. Veritabanındaki
+ * eski `unixepoch()` varsayılanı sadece elle yazılan SQL (örnek veri) için durur.
+ */
 const createdAt = () =>
 	integer('created_at', { mode: 'timestamp' })
 		.notNull()
-		.default(sql`(unixepoch())`);
+		.$defaultFn(() => dayStart());
 
 // ---------------------------------------------------------------------------
 // Kullanıcılar ve giriş

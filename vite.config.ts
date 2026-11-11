@@ -13,7 +13,24 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter()
+			adapter: adapter(),
+			// İçerik güvenlik politikası: sayfa sadece kendi sitemize bağlanabilir. Bir XSS açığı olsa bile, sızan kod
+			// formdaki e-posta adresini başka bir sunucuya gönderemez. Satır içi betikler için hash'ler otomatik eklenir.
+			csp: {
+				mode: 'auto',
+				directives: {
+					'default-src': ['self'],
+					'script-src': ['self'],
+					'style-src': ['self', 'unsafe-inline'],
+					'img-src': ['self', 'data:'],
+					'font-src': ['self'],
+					'connect-src': ['self'],
+					'form-action': ['self'],
+					'frame-ancestors': ['none'],
+					'base-uri': ['self'],
+					'object-src': ['none']
+				}
+			}
 		}),
 
 		paraglideVitePlugin({

@@ -1,12 +1,13 @@
 import { error, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
-import type { Handle } from '@sveltejs/kit/hooks';
+import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 import { getTextDirection } from '#lib/paraglide/runtime.js';
 import { paraglideMiddleware } from '#lib/paraglide/server.js';
 import { getDb } from '#lib/server/db/index.ts';
 import { getEnv } from '#lib/server/env.ts';
 import { validateSession } from '#lib/server/auth.ts';
 import { adminAccess } from '#lib/server/admin.ts';
+import { describeError } from '#lib/server/redact.ts';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -46,3 +47,12 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 // Auth önce çalışır: paraglide event kopyası oluşturduğu için platform gibi alanlar sonrasında erişilemeyebilir
 export const handle = sequence(handleAuth, handleParaglide);
+
+/**
+ * Beklenmeyen hatalar sadece tür ve maskelenmiş mesajla loglanır: istek gövdesi, form verisi ya da e-posta adresi
+ * log'a yazılmaz. Kullanıcıya genel bir mesaj döner.
+ */
+export const handleError: HandleServerError = ({ kind, error, event }) => {
+	if (kind !== 'unknown') return;
+	console.error(`[${event.route.id ?? 'yol yok'}] ${describeError(error)}`);
+};

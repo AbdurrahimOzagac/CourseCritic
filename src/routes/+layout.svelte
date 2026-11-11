@@ -1,4 +1,9 @@
 <script lang="ts">
+	// Font kendi sitemizden sunulur: Google Fonts ziyaretçilerin IP adresini Google'a gönderirdi
+	import '@fontsource/ibm-plex-sans/400.css';
+	import '@fontsource/ibm-plex-sans/500.css';
+	import '@fontsource/ibm-plex-sans/600.css';
+	import '@fontsource/ibm-plex-sans/700.css';
 	import './layout.css';
 	import favicon from '#lib/assets/favicon.svg';
 	import { page } from '$app/state';
