@@ -71,12 +71,15 @@ function sealKey(secret: string): Promise<CryptoKey> {
 	return key;
 }
 
-/** Değeri AES-GCM ile şifreler (rastgele IV). Çıktı: base64url(iv | şifreli metin). */
-export async function seal(secret: string, value: string): Promise<string> {
+/**
+ * Değeri AES-GCM ile şifreler (rastgele IV). Çıktı: base64url(iv | şifreli metin).
+ * `context` (ör. satır kimliği) şifreye bağlanır: değer başka bir satıra taşınırsa açılmaz.
+ */
+export async function seal(secret: string, value: string, context: string): Promise<string> {
 	const iv = crypto.getRandomValues(new Uint8Array(12));
 	const ct = new Uint8Array(
 		await crypto.subtle.encrypt(
-			{ name: 'AES-GCM', iv },
+			{ name: 'AES-GCM', iv, additionalData: encoder.encode(context) },
 			await sealKey(secret),
 			encoder.encode(value)
 		)
@@ -88,13 +91,17 @@ export async function seal(secret: string, value: string): Promise<string> {
 }
 
 /** `seal` çıktısını çözer; bozuk ya da başka anahtarla şifrelenmişse null. */
-export async function unseal(secret: string, sealed: string): Promise<string | null> {
+export async function unseal(
+	secret: string,
+	sealed: string,
+	context: string
+): Promise<string | null> {
 	try {
 		const bytes = Uint8Array.from(atob(sealed.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
 			c.charCodeAt(0)
 		);
 		const pt = await crypto.subtle.decrypt(
-			{ name: 'AES-GCM', iv: bytes.slice(0, 12) },
+			{ name: 'AES-GCM', iv: bytes.slice(0, 12), additionalData: encoder.encode(context) },
 			await sealKey(secret),
 			bytes.slice(12)
 		);

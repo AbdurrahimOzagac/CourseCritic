@@ -1,7 +1,7 @@
 import type { Cookies } from '@sveltejs/kit';
 import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import type { Db } from './db';
-import { bannedEmails, loginCodes, sessions, users } from './db/schema';
+import { bannedEmails, loginCodes, reports, sessions, users } from './db/schema';
 import { hmac, randomCode, randomToken, seal, sha256, timingSafeEqual, unseal } from './crypto';
 import { normalizeEmail } from '../email';
 import { dayStart } from './time';
@@ -53,7 +53,8 @@ function randomInt(max: number) {
  */
 function sessionExpiry(persistent: boolean) {
 	const days = persistent ? 300 + randomInt(121) : 1 + randomInt(3);
-	return dayStart(new Date(Date.now() + days * DAY));
+	// Önce yuvarla, sonra ekle: en az `days` tam gün kalır (gece yarısına yakın girişte hemen bitmesin)
+	return new Date(dayStart().getTime() + (days + 1) * DAY);
 }
 
 export function emailHash(secret: string, normalizedEmail: string) {
@@ -94,7 +95,7 @@ export async function createLoginCode(
 	await db.insert(loginCodes).values({
 		id: attemptId,
 		rateKey,
-		accountSealed: await seal(secret, await emailHash(secret, normalizedEmail)),
+		accountSealed: await seal(secret, await emailHash(secret, normalizedEmail), attemptId),
 		codeHash: await hmac(secret, `code:${attemptId}:${code}`),
 		remember,
 		expiresAt: new Date(now + CODE_TTL),
@@ -113,6 +114,9 @@ export async function verifyLoginCode(
 	attemptId: string,
 	code: string
 ): Promise<VerifyCodeResult> {
+	// Süresi geçmiş kodlar her doğrulamada da temizlenir (kimse yeni kod istemese de 1 saatten fazla kalmasın)
+	await db.delete(loginCodes).where(lt(loginCodes.createdAt, new Date(Date.now() - HOUR)));
+
 	// Deneme hakkı, kod karşılaştırılmadan önce tek ve bölünmez bir sorguyla harcanır. Aynı anda gelen istekler
 	// sayacı aynı değerde göremez: sınır dolduysa satır dönmez ve kod hiç karşılaştırılmaz.
 	const [attempt] = await db
@@ -145,7 +149,7 @@ export async function verifyLoginCode(
 
 	// Bu adres için bekleyen tüm kodlar silinir; hesap özeti sadece burada, kod doğrulandıktan sonra açılır
 	await db.delete(loginCodes).where(eq(loginCodes.rateKey, attempt.rateKey));
-	const accountHash = await unseal(secret, attempt.accountSealed);
+	const accountHash = await unseal(secret, attempt.accountSealed, attemptId);
 	if (!accountHash) return { ok: false, reason: 'expired' };
 	if (await isBanned(db, accountHash)) return { ok: false, reason: 'banned' };
 
@@ -228,21 +232,45 @@ export async function destroySession(db: Db, cookies: Cookies) {
  * zaten kimseye bağlı değildir (yorum başına anahtar); sayılmaya devam eder, aksi halde hesabı silip yeniden açarak
  * aynı yorum tekrar bildirilebilirdi.
  */
-function deleteUserStatements(db: Db, userId: string) {
-	return [db.delete(users).where(eq(users.id, userId))] as const;
+async function deleteUserStatements(
+	db: Db,
+	secret: string,
+	user: { id: string; emailHash: string }
+) {
+	// Kişinin yazdığı bildirim nedenleri silinir. Bildirimler kullanıcıya bağlı tutulmadığı için, nedeni olan her
+	// bildirimin anahtarı bu kişi için yeniden hesaplanıp karşılaştırılır.
+	const withReason = await db.all<{ reviewId: string; reporterKey: string }>(
+		sql`SELECT review_id AS reviewId, reporter_key AS reporterKey FROM reports WHERE reason IS NOT NULL`
+	);
+	const mine: { reviewId: string; reporterKey: string }[] = [];
+	for (const r of withReason) {
+		if ((await reporterKey(secret, r.reviewId, user.emailHash)) === r.reporterKey) mine.push(r);
+	}
+	return [
+		...mine.map((r) =>
+			db
+				.update(reports)
+				.set({ reason: null })
+				.where(and(eq(reports.reviewId, r.reviewId), eq(reports.reporterKey, r.reporterKey)))
+		),
+		db.delete(users).where(eq(users.id, user.id))
+	];
 }
 
-export async function deleteUser(db: Db, userId: string) {
-	await db.batch(deleteUserStatements(db, userId));
+export async function deleteUser(db: Db, secret: string, userId: string) {
+	const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+	if (!user) return;
+	const [first, ...rest] = await deleteUserStatements(db, secret, user);
+	await db.batch([first, ...rest]);
 }
 
 /** Kullanıcıyı ve tüm içeriğini siler, e-posta özetini kara listeye ekler. */
-export async function banUser(db: Db, userId: string) {
+export async function banUser(db: Db, secret: string, userId: string) {
 	const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
 	if (!user) return;
 	await db.batch([
 		db.insert(bannedEmails).values({ emailHash: user.emailHash }).onConflictDoNothing(),
-		...deleteUserStatements(db, userId)
+		...(await deleteUserStatements(db, secret, user))
 	]);
 }
 

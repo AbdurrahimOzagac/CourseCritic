@@ -5,17 +5,28 @@ export function redactEmails(text: string): string {
 	return text.replace(EMAIL, '[e-posta]');
 }
 
-/** Beklenmeyen bir hatayı log için tek satıra indirir: sadece tür ve maskelenmiş mesaj, istek gövdesi yok. */
+/** Tek bir hatanın log'a yazılabilir mesajı. Drizzle sorgu hataları parametre taşır: onlardan sadece başlık kalır. */
+function safeMessage(error: unknown): string {
+	if (!(error instanceof Error)) return String(error);
+	if (error.message.startsWith('Failed query'))
+		return `${error.name}: veritabanı sorgusu başarısız`;
+	return `${error.name}: ${error.message}`;
+}
+
+/**
+ * Beklenmeyen bir hatayı log için tek satıra indirir: zincirdeki her hata için tür ve maskelenmiş mesaj; sorgu
+ * parametresi, istek gövdesi ya da e-posta adresi yok. Hiçbir durumda hata fırlatmaz.
+ */
 export function describeError(error: unknown): string {
-	// Drizzle sorgu hataları mesajda parametreleri de taşır (kullanıcı kimliği, yorum metni, özetler):
-	// sadece veritabanının kendi hata mesajı loglanır
-	if (error instanceof Error && error.message.startsWith('Failed query')) {
-		const cause = error.cause instanceof Error ? error.cause.message : 'bilinmeyen neden';
-		return redactEmails(`${error.name}: veritabanı sorgusu başarısız (${cause})`).slice(0, 1000);
+	try {
+		const parts: string[] = [];
+		let current: unknown = error;
+		for (let depth = 0; current !== undefined && current !== null && depth < 5; depth++) {
+			parts.push(safeMessage(current));
+			current = current instanceof Error ? current.cause : undefined;
+		}
+		return redactEmails(parts.join(' ← ')).slice(0, 1000);
+	} catch {
+		return 'açıklanamayan hata';
 	}
-	if (error instanceof Error) {
-		const cause = error.cause instanceof Error ? ` (neden: ${error.cause.message})` : '';
-		return redactEmails(`${error.name}: ${error.message}${cause}`).slice(0, 1000);
-	}
-	return redactEmails(String(error)).slice(0, 1000);
 }

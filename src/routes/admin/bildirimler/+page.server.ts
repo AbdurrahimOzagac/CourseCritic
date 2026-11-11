@@ -80,6 +80,6 @@ export const actions: Actions = {
 		const review = await reviewFromForm(event.locals, event.request);
 		if (!review) return fail(404);
 		if (review.userId === admin.id) return fail(400, { error: 'self' });
-		await banUser(event.locals.db, review.userId);
+		await banUser(event.locals.db, event.locals.env.AUTH_SECRET, review.userId);
 	}
 };

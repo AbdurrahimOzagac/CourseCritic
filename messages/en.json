@@ -174,7 +174,7 @@
 	"login_email": "University e-mail",
 	"login_send_code": "Send code",
 	"login_remember": "Keep me signed in on this device",
-	"login_remember_hint": "Do not tick this on a shared or lab computer. Otherwise you are signed out when the browser closes.",
+	"login_remember_hint": "Do not tick this on a shared or lab computer. If unticked, the session ends within a few days at most, and usually when the browser closes.",
 	"login_error_domain": "Only {domains} addresses can sign in.",
 	"login_error_tagged": "Enter your address as is, without \"+\" tags (e.g. name.surname@hacettepe.edu.tr).",
 	"login_error_banned": "This account has been permanently banned for violating the rules.",

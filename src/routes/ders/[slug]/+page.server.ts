@@ -1,5 +1,5 @@
 import { error, fail, redirect } from '@sveltejs/kit';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { REPORT_HIDE_THRESHOLD } from '#lib/constants.ts';
 import { reporterKey } from '#lib/server/auth.ts';
 import { reports, reviews } from '#lib/server/db/schema.ts';
@@ -54,13 +54,18 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		const keys = await Promise.all(
 			reviewRows.map((r) => reporterKey(locals.env.AUTH_SECRET, r.id, user.emailHash))
 		);
+		// Tek parametreli sorgu: D1 sorgu başına en fazla 100 parametre kabul eder, anahtarlar JS'te karşılaştırılır
+		const mine = new Set(keys);
 		const reported = new Set(
 			(
-				await locals.db
-					.select({ reviewId: reports.reviewId })
-					.from(reports)
-					.where(inArray(reports.reporterKey, keys))
-			).map((r) => r.reviewId)
+				await locals.db.all<{ reviewId: string; reporterKey: string }>(sql`
+					SELECT p.review_id AS reviewId, p.reporter_key AS reporterKey
+					FROM reports p JOIN reviews r ON r.id = p.review_id
+					WHERE r.course_id = ${course.id}
+				`)
+			)
+				.filter((p) => mine.has(p.reporterKey))
+				.map((p) => p.reviewId)
 		);
 		for (const r of reviewRows) r.reportedByMe = reported.has(r.id);
 	}

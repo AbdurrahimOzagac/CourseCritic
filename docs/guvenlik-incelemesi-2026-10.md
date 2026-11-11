@@ -153,6 +153,14 @@ Uygulamanın kontrolü dışında kalanlar:
 - `AUTH_SECRET` ya da Cloudflare'e kod yükleme yetkisi olan biri, öğrenci listesini deneyerek hesapları eşleştirebilir
   ya da adresleri kaydeden kod yükleyebilir. Bunu sadece hesap güvenliği (2FA, dar yetkili anahtarlar) önler.
 - Yorumun içeriği ya da yazım üslubu yazarı belli edebilir.
+- Migration 0004 öncesindeki veritabanı durumu (eski giriş kodu satırları, eklenme sırası) Cloudflare'in Time Travel
+  geçmişinde saklama süresi dolana kadar durur. Canlıda o tarihte sadece admin hesabı vardı, öğrenci verisi yoktu.
+
+İkinci doğrulama turunda ayrıca düzeltilenler: 100'den fazla yorumu olan derslerde "Bildirildi" sorgusunun D1'in
+100 parametre sınırına takılması; gece yarısına yakın girişlerde geçici oturumun dakikalar içinde bitmesi; eski
+oturumların giriş gününü açık etmesi; hesap silinince bildirim nedenlerinin kalması; şifreli değerin başka satıra
+taşınabilmesi (AES-GCM ek veri); hata zincirinde sorgu parametrelerinin loglanabilmesi; migration testinin veri
+kaybını denetlememesi.
 
 - **Gizlenen yorumun yeniden yazılması:** Yazar gizlenen yorumunu silip yeniden yazabilir. Tekrarlayanlar admin
   tarafından banlanır.

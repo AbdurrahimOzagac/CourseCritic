@@ -12,7 +12,7 @@ describe('redact', () => {
 		const e = new Error('send failed for ali@hacettepe.edu.tr', {
 			cause: new Error('rejected: ali@hacettepe.edu.tr')
 		});
-		expect(describeError(e)).toBe('Error: send failed for [e-posta] (neden: rejected: [e-posta])');
+		expect(describeError(e)).toBe('Error: send failed for [e-posta] ← Error: rejected: [e-posta]');
 		expect(describeError('plain veli@hacettepe.edu.tr')).toBe('plain [e-posta]');
 	});
 
@@ -27,5 +27,17 @@ describe('redact', () => {
 		expect(out).toContain('no such table');
 		expect(out).not.toContain('user-123');
 		expect(out).not.toContain('gizli yorum');
+	});
+
+	it('strips params from database errors anywhere in the cause chain and never throws', () => {
+		const db = new Error('Failed query: select 1\nparams: user-9,gizli');
+		const wrapped = new Error('yükleme başarısız', { cause: db });
+		expect(describeError(wrapped)).not.toContain('user-9');
+		const hostile = {
+			toString() {
+				throw new Error('x');
+			}
+		};
+		expect(describeError(hostile)).toBe('açıklanamayan hata');
 	});
 });

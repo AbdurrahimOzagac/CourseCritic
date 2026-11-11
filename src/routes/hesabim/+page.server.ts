@@ -35,7 +35,7 @@ export const actions: Actions = {
 	deleteAccount: async ({ locals, cookies }) => {
 		if (!locals.user) redirect(303, '/giris');
 		await destroySession(locals.db, cookies);
-		await deleteUser(locals.db, locals.user.id);
+		await deleteUser(locals.db, locals.env.AUTH_SECRET, locals.user.id);
 		redirect(303, '/');
 	}
 };

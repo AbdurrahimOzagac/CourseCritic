@@ -49,7 +49,8 @@ CREATE TABLE `__new_reports` (
 	FOREIGN KEY (`review_id`) REFERENCES `__new_reviews`(`id`) ON UPDATE no action ON DELETE cascade
 ) WITHOUT ROWID;--> statement-breakpoint
 -- Eski geçici anahtarlar ('legacy:' + kullanıcı kimliği) kimliği açık taşıyordu: rastgele değerle değiştirilir
-INSERT INTO `__new_reports` SELECT `review_id`, CASE WHEN `reporter_key` LIKE 'legacy:%' THEN 'legacy:' || lower(hex(randomblob(16))) ELSE `reporter_key` END, `reason`, `dismissed` FROM `reports`;--> statement-breakpoint
+-- Eski satırlar artık kişiye bağlanamadığı için aynı kişi tekrar bildirebilir; çift sayılmasın diye sayımdan çıkarılır
+INSERT INTO `__new_reports` SELECT `review_id`, CASE WHEN `reporter_key` LIKE 'legacy:%' THEN 'legacy:' || lower(hex(randomblob(16))) ELSE `reporter_key` END, `reason`, CASE WHEN `reporter_key` LIKE 'legacy:%' THEN true ELSE `dismissed` END FROM `reports`;--> statement-breakpoint
 CREATE TABLE `__new_sessions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
@@ -57,7 +58,8 @@ CREATE TABLE `__new_sessions` (
 	`persistent` integer DEFAULT false NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `__new_users`(`id`) ON UPDATE no action ON DELETE cascade
 ) WITHOUT ROWID;--> statement-breakpoint
-INSERT INTO `__new_sessions` SELECT `id`, `user_id`, `expires_at`, true FROM `sessions`;--> statement-breakpoint
+-- Eski oturumların bitişi giriş gününü (bitiş − 365 gün) açık ediyordu: yeni oturumlar gibi rastgele kaydırılır
+INSERT INTO `__new_sessions` SELECT `id`, `user_id`, `expires_at` / 86400 * 86400 - (abs(random()) % 121) * 86400, true FROM `sessions`;--> statement-breakpoint
 CREATE TABLE `__new_course_suggestions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
