@@ -113,9 +113,96 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
 
 - Reddit tarzı tartışma bölümü **yok**.
 - "Tavsiye eder misin?" sorusu **yok**. Derslere yığılma yaratabilir.
-- Ders bilgileri (kredi, AKTS, sınıf, tür, ön koşul, açıklama) ders sayfasında gösterilir. Öğrenciler düzeltme ya da yeni ders önerebilir, admin onaylar.
+- Ders bilgileri (kredi, AKTS, sınıf, tür, ön koşul, açıklama) ders sayfasında gösterilir. Öğrenciler düzeltme önerebilir, admin onaylar. Yeni ders ekleme için bkz. "Karar: her kullanıcı ders ekleyebilir".
 - Mezunlar: e-posta adresi açık kaldığı sürece giriş yapabilir. Oturumlar 1 yıl geçerli ve kullanıldıkça uzar. Ayrıca okul dışı e-posta bağlama yok; edu e-postasıyla giriş kritik.
 - Yıllara göre puanlama (deneme sürümü): ders sayfasında **Hoca** ve **Dönem** filtreleri var. Puanlar seçime göre yeniden hesaplanır. Böylece üç seviye (ders / ders + hoca / ders + hoca + dönem) tek sayfada. Kullanımla birlikte yeniden değerlendirilecek.
+
+## Ders kataloğu ve BBM → CMP geçişi (Kasım 2026)
+
+- Bölüm 2026-2027 Güz'den itibaren yeni müfredata geçti: ders kodları **BBM** yerine **CMP** oldu.
+- Sitede şimdilik sadece yeni **CMP kodlu bölüm içi dersler** var: 25 zorunlu + 40 teknik seçmeli = 65 ders.
+  Kaynak: bölüm sitesindeki "Müfredat (Yeni)" sayfası (TR ve EN). Liste `seed/courses.cmp.csv` dosyasında.
+- Bölüm dışı dersler (MAT, FİZ, İNG, TKD vb.) ve eski BBM dersleri henüz eklenmedi.
+- Ön koşullar eklenmedi (bölüm bunları ayrı bir Google tablosunda tutuyor).
+
+### Karar: her kullanıcı ders ekleyebilir
+
+- Giriş yapmış her kullanıcı, admin onayı beklemeden yeni ders ekleyebilecek.
+- Gerekçe: ders kodu tekil olduğu için aynı ders iki kez eklenemez.
+- Henüz uygulanmadı: şu an yeni ders "öneri" olarak admin onayına düşüyor.
+- Uygularken dikkat: kod biçimi denetimi ve küfür filtresi kalmalı; yanlış ya da uydurma eklenen dersi admin
+  düzeltebilmeli ya da silebilmeli.
+
+### Eski–yeni ders eşleştirmesi (taslak)
+
+Bölüm sitesinde resmi bir intibak tablosu bulunamadı. Aşağıdaki eşleştirme **ders adlarının benzerliğine göre**
+hazırlandı; resmi tabloyla doğrulanmalı. Eski BBM dersleri siteye eklenince bu çiftler "eşdeğer ders" olarak
+bağlanacak (ayrı sayfalar, birbirine bağlantı).
+
+| Eski (BBM) | Yeni (CMP) | Ders                                                     |
+| ---------- | ---------- | -------------------------------------------------------- |
+| BBM 101    | CMP 101    | Programlamaya Giriş I                                    |
+| BBM 103    | CMP 103    | Programlamaya Giriş Laboratuvarı I                       |
+| BBM 102    | CMP 102    | Programlamaya Giriş II                                   |
+| BBM 104    | CMP 104    | Programlamaya Giriş Laboratuvarı II                      |
+| BBM 201    | CMP 201    | Veri Yapıları                                            |
+| BBM 203    | CMP 203    | Yazılım Laboratuvarı I                                   |
+| BBM 205    | CMP 205    | Kesikli Matematiksel Yapılar                             |
+| BBM 231    | CMP 211    | Mantıksal Tasarım                                        |
+| BBM 233    | CMP 213    | Mantıksal Tasarım Laboratuvarı                           |
+| BBM 202    | CMP 202    | Algoritmalar                                             |
+| BBM 204    | CMP 204    | Yazılım Laboratuvarı II                                  |
+| BBM 234    | CMP 212    | Bilgisayar Yapısı                                        |
+| BBM 401    | CMP 206    | Biçimsel Diller ve Özdevinirler Kuramı (eskiden seçmeli) |
+| BBM 301    | CMP 301    | Programlama Dilleri                                      |
+| BBM 371    | CMP 361    | Veri Yönetimi                                            |
+| BBM 325    | CMP 300    | Staj I                                                   |
+| BBM 342    | CMP 332    | İşletim Sistemleri                                       |
+| BBM 382    | CMP 352    | Yazılım Mühendisliği                                     |
+| BBM 384    | CMP 354    | Yazılım Mühendisliği Laboratuvarı                        |
+| BBM 425    | CMP 400    | Staj II                                                  |
+| BBM 479    | CMP 491    | Tasarım Projesi I                                        |
+| BBM 480    | CMP 492    | Tasarım Projesi II                                       |
+| BBM 408    | CMP 401    | Algoritma Analizi                                        |
+| BBM 402    | CMP 402    | Hesaplama Kuramı                                         |
+| BBM 403    | CMP 403    | Kombinatorik ve Çizge Kuramı                             |
+| BBM 404    | CMP 404    | Derleyici Gerçekleştiriminin Temelleri                   |
+| BBM 412    | CMP 405    | Bilgisayar Grafiği                                       |
+| BBM 421    | CMP 406    | Oyun Teknolojileri                                       |
+| BBM 442    | CMP 412    | Koşut İşlem                                              |
+| BBM 433    | CMP 413    | Mikroişleyiciler                                         |
+| BBM 441    | CMP 414    | Yüksek Başarımlı Hesaplamaya Giriş                       |
+| BBM 452    | CMP 421    | Veri İletişimi                                           |
+| BBM 451    | CMP 422    | Bilgisayar Ağları                                        |
+| BBM 456    | CMP 423    | Bilgisayar ve Ağ Güvenliği                               |
+| BBM 458    | CMP 424    | Kablosuz ve Mobil Ağlar                                  |
+| BBM 432    | CMP 431    | Gömülü Sistemler                                         |
+| BBM 443    | CMP 433    | Blokzincirinin Temelleri                                 |
+| BBM 463    | CMP 441    | Bilgi Güvenliği                                          |
+| BBM 462    | CMP 442    | Sosyal ve Ekonomik Ağlar                                 |
+| BBM 475    | CMP 443    | Yönetim Bilişim Sistemleri                               |
+| BBM 498    | CMP 451    | Yazılım Gereksinimleri                                   |
+| BBM 485    | CMP 452    | Yazılım Mimarileri                                       |
+| BBM 481    | CMP 453    | Yazılım Geliştirme                                       |
+| BBM 482    | CMP 454    | Yazılım Kalite Güvence                                   |
+| BBM 471    | CMP 461    | Veri Tabanı Yönetim Sistemleri                           |
+| BBM 467    | CMP 462    | Veri Yoğunluklu Uygulamalar                              |
+| BBM 405    | CMP 471    | Yapay Zekâya Giriş (eski adı: Yapay Zekânın Temelleri)   |
+| BBM 406    | CMP 472    | Makine Öğrenmesine Giriş                                 |
+| BBM 413    | CMP 473    | Görüntü İşlemeye Giriş                                   |
+| BBM 416    | CMP 474    | Bilgisayarlı Görüye Giriş                                |
+| BBM 495    | CMP 476    | Doğal Dil İşlemeye Giriş                                 |
+| BBM 411    | CMP 478    | Biyoenformatiğe Giriş                                    |
+| BBM 407    | CMP 479    | Bulanık Mantık                                           |
+
+Emin olunamayanlar (ad farklı, içerik aynı olabilir):
+
+- BBM 431 İleri Bilgisayar Mimarileri ↔ CMP 411 Yüksek Başarımlı Bilgisayar Mimarileri
+- BBM 461 Güvenli Programlama ↔ CMP 455 Yazılım Güvenliği
+- BBM 105 Bilgisayar Mühendisliğine Giriş ↔ CMP 100 Bilgisayar Mühendisliği Oryantasyonu
+
+Eski karşılığı bulunamayan yeni dersler: CMP 341, 390, 432, 434, 463, 475, 477, 480, 481.
+Eski müfredattaki ayrı laboratuvar dersleri (BBM 409, 414, 415, 418 vb.) yeni müfredatta ayrı ders olarak yok.
 
 ## Açık konular
 
