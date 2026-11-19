@@ -112,7 +112,7 @@
 	"section_instructor": "Instructor",
 	"instructor_criteria_all_hint": "This course has several instructors. Pick one above to see their ratings separately.",
 	"reviews": "Reviews",
-	"review_saved_pending": "Your review was saved. The instructor you added will appear after admin approval.",
+	"review_saved_pending": "Your review was saved. The instructor you added becomes visible once another student selects them; until then your review is not published.",
 	"field_credits": "Credits",
 	"field_ects": "ECTS",
 	"field_prerequisites": "Prerequisites",
@@ -146,7 +146,7 @@
 	"form_other_instructors": "Other instructors",
 	"form_instructor_not_listed": "Not listed, add a new instructor",
 	"form_instructor_name": "Full name",
-	"form_new_instructor_note": "The new instructor appears after admin approval. Your review is saved and published once the instructor is approved.",
+	"form_new_instructor_note": "The instructor you add becomes visible to everyone once another student selects the same name. Until then your review is not published. Please write the full first and last name.",
 	"form_academic_year": "Academic year",
 	"form_select": "Select",
 	"pending": "pending",
@@ -294,5 +294,10 @@
 	"clear_rating": "Clear",
 	"form_ratings_hint": "All ratings are optional; leave out any you do not know or do not want to give. At least one rating or a comment is required.",
 	"error_empty_review": "Please give at least one rating or write a comment.",
-	"reviews_anonymous_note": "All reviews are anonymous."
+	"reviews_anonymous_note": "All reviews are anonymous.",
+	"error_instructor_limit": "You can add at most 3 new instructors per week. The instructor may already be listed; try searching by name.",
+	"form_instructor_suggestions": "These are already listed. Is one of them the instructor you mean?",
+	"form_instructor_exact": "This instructor is already listed:",
+	"form_instructor_pick": "Select this instructor",
+	"error_instructor_name": "Write the instructor's first and last name (letters only)."
 }

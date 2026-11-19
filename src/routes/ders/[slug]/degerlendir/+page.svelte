@@ -22,6 +22,7 @@
 	import { CRITERIA } from '#lib/constants.ts';
 	import { m } from '#lib/paraglide/messages.js';
 	import { findProfanity } from '#lib/profanity.ts';
+	import { foldText, matchesQuery } from '#lib/text.ts';
 	import { NEW_INSTRUCTOR } from '#lib/review-form.ts';
 	import type { PageProps } from './$types';
 
@@ -50,6 +51,16 @@
 	let curve = $state<string>(e?.curve ?? '');
 	let comment = $state(e?.comment ?? '');
 	let submitting = $state(false);
+
+	// Yeni hoca eklerken listedeki benzer isimler (Türkçe karakterden bağımsız, en fazla 5)
+	let newName = $state('');
+	const knownInstructors = $derived([...data.courseInstructors, ...data.otherInstructors]);
+	const similar = $derived(
+		foldText(newName).length >= 2
+			? knownInstructors.filter((i) => matchesQuery(newName, i.name)).slice(0, 5)
+			: []
+	);
+	const exactMatch = $derived(similar.some((i) => foldText(i.name) === foldText(newName)));
 
 	// Gönder'e basınca açılan onay penceresi: boş bırakılan isteğe bağlı alanları listeler
 	let formEl: HTMLFormElement;
@@ -86,6 +97,8 @@
 				return m.error_too_long();
 			case 'future_term':
 				return m.error_future_term();
+			case 'limit':
+				return m.error_instructor_limit();
 			case 'empty_review':
 				return m.error_empty_review();
 			case 'duplicate':
@@ -172,12 +185,41 @@
 						required
 						minlength="3"
 						maxlength="100"
+						autocomplete="off"
+						bind:value={newName}
 						class="w-full"
 					/>
 				</div>
+				<!-- Yazarken listedeki benzer isimler: çoğu zaman yeni eklemek yerine var olan seçilir -->
+				{#if similar.length}
+					<div class="rounded border border-amber-300 bg-white p-3 text-sm">
+						<p class="mb-2 font-medium text-slate-800">
+							{exactMatch ? m.form_instructor_exact() : m.form_instructor_suggestions()}
+						</p>
+						<ul class="flex flex-col gap-1">
+							{#each similar as i (i.id)}
+								<li class="flex items-center justify-between gap-3">
+									<span>{instructorName(i)}</span>
+									<button
+										type="button"
+										class="btn btn-secondary py-1"
+										onclick={() => {
+											instructor = i.id;
+											newName = '';
+										}}>{m.form_instructor_pick()}</button
+									>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
 				<p class="text-sm text-amber-800 sm:col-span-2">{m.form_new_instructor_note()}</p>
-				{#if errorText(errors.newInstructorName)}
-					<p class="text-sm text-red-700 sm:col-span-2">{errorText(errors.newInstructorName)}</p>
+				{#if errors.newInstructorName}
+					<p class="text-sm text-red-700 sm:col-span-2">
+						{errors.newInstructorName === 'invalid'
+							? m.error_instructor_name()
+							: errorText(errors.newInstructorName)}
+					</p>
 				{/if}
 			</div>
 		{/if}

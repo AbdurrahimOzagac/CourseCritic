@@ -1,32 +1,96 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { Db } from './db';
-import { instructors } from './db/schema';
+import { hmac } from './crypto';
+import { instructorAdds, instructors, reviews } from './db/schema';
 import { foldText, slugify } from '#lib/text.ts';
 
-/** Aynı isimde hoca varsa onu döndürür (onaylı ya da beklemede), yoksa yeni hoca oluşturur. */
+/** Bir öğrenci haftada en fazla bu kadar yeni hoca ekleyebilir. */
+export const MAX_NEW_INSTRUCTORS_PER_WEEK = 3;
+/** Öğrencinin eklediği hoca, bu kadar farklı öğrenci kullanınca herkese görünür. */
+export const INSTRUCTOR_CONFIRMATIONS = 2;
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const currentWeek = () => Math.floor(Date.now() / WEEK_MS);
+
+/** Aynı isimde (Türkçe karakterden bağımsız) hoca var mı? Onaylı ya da beklemede olabilir. */
+export async function findInstructorByName(
+	db: Db,
+	name: string
+): Promise<{ id: string; status: 'approved' | 'pending' } | undefined> {
+	const folded = foldText(name);
+	const all = await db
+		.select({ id: instructors.id, name: instructors.name, status: instructors.status })
+		.from(instructors);
+	return all.find((i) => foldText(i.name) === folded);
+}
+
+async function createInstructor(db: Db, name: string, status: 'approved' | 'pending') {
+	const slug = await uniqueSlug(db, slugify(name) || 'hoca');
+	const [row] = await db
+		.insert(instructors)
+		.values({ name, slug, status })
+		.returning({ id: instructors.id, status: instructors.status });
+	return row;
+}
+
+const cleanName = (name: string) => name.replace(/\s+/g, ' ').trim();
+
+/** Aynı isimde hoca varsa onu döndürür (onaylı ya da beklemede), yoksa yeni hoca oluşturur. (Admin yolları) */
 export async function findOrCreateInstructor(
 	db: Db,
 	input: { name: string },
 	opts: { status: 'approved' | 'pending' }
 ): Promise<{ id: string; status: 'approved' | 'pending' }> {
-	const name = input.name.replace(/\s+/g, ' ').trim();
-	const folded = foldText(name);
-	const all = await db
-		.select({ id: instructors.id, name: instructors.name, status: instructors.status })
-		.from(instructors);
-	const existing = all.find((i) => foldText(i.name) === folded);
-	if (existing) return existing;
+	const name = cleanName(input.name);
+	return (await findInstructorByName(db, name)) ?? (await createInstructor(db, name, opts.status));
+}
 
-	const slug = await uniqueSlug(db, slugify(name) || 'hoca');
-	const [row] = await db
-		.insert(instructors)
-		.values({
-			name,
-			slug,
-			status: opts.status
-		})
-		.returning({ id: instructors.id, status: instructors.status });
-	return row;
+/**
+ * Öğrencinin yeni hoca eklemesi. İsim zaten varsa o hoca kullanılır ve sınır harcanmaz (ikinci öğrenci aynı ismi
+ * yazarak ilkini onaylamış olur). Yoksa haftalık sınır kontrol edilir ve hoca "beklemede" oluşturulur.
+ */
+export async function addInstructorForStudent(
+	db: Db,
+	secret: string,
+	userEmailHash: string,
+	rawName: string
+): Promise<
+	{ ok: true; id: string; status: 'approved' | 'pending' } | { ok: false; reason: 'limit' }
+> {
+	const name = cleanName(rawName);
+	const existing = await findInstructorByName(db, name);
+	if (existing) return { ok: true, ...existing };
+
+	const week = currentWeek();
+	// Eski haftaların kayıtları temizlenir
+	await db.delete(instructorAdds).where(sql`${instructorAdds.week} < ${week - 2}`);
+	const limitKey = await hmac(secret, `ia:${userEmailHash}:${week}`);
+	const [{ n }] = await db
+		.select({ n: sql<number>`COUNT(*)` })
+		.from(instructorAdds)
+		.where(and(eq(instructorAdds.limitKey, limitKey), eq(instructorAdds.week, week)));
+	if (n >= MAX_NEW_INSTRUCTORS_PER_WEEK) return { ok: false, reason: 'limit' };
+
+	await db.insert(instructorAdds).values({ limitKey, week });
+	return { ok: true, ...(await createInstructor(db, name, 'pending')) };
+}
+
+/**
+ * Beklemedeki hoca, farklı öğrenciler tarafından yeterince kullanıldıysa herkese görünür yapılır.
+ * Sayı değerlendirmeyi yazan farklı hesaplara göre hesaplanır; aynı kişinin birden fazla değerlendirmesi tek sayılır.
+ */
+export async function confirmInstructorIfUsed(db: Db, instructorId: string): Promise<boolean> {
+	const [{ n }] = await db
+		.select({ n: sql<number>`COUNT(DISTINCT ${reviews.userId})` })
+		.from(reviews)
+		.where(eq(reviews.instructorId, instructorId));
+	if (n < INSTRUCTOR_CONFIRMATIONS) return false;
+	const updated = await db
+		.update(instructors)
+		.set({ status: 'approved' })
+		.where(and(eq(instructors.id, instructorId), eq(instructors.status, 'pending')))
+		.returning({ id: instructors.id });
+	return updated.length > 0;
 }
 
 async function uniqueSlug(db: Db, base: string): Promise<string> {

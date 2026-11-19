@@ -53,7 +53,8 @@ describe('migrations', () => {
 		'reports',
 		'login_codes',
 		'banned_emails',
-		'course_suggestions'
+		'course_suggestions',
+		'instructor_adds'
 	])('%s eklenme sırasını saklamaz (WITHOUT ROWID)', (table) => {
 		const [row] = db
 			.prepare(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`)

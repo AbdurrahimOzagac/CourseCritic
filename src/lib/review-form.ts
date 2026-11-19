@@ -17,6 +17,11 @@ import { isTermAllowed } from './terms';
 
 export const NEW_INSTRUCTOR = '__new__';
 
+/** Hoca adı: en az iki sözcük (ad ve soyad), sadece harf, nokta, kesme işareti ve tire. */
+export function isValidInstructorName(name: string): boolean {
+	return /^\p{L}[\p{L}.'’-]*(?:\s+\p{L}[\p{L}.'’-]*)+$/u.test(name.trim());
+}
+
 export type FieldError =
 	'required' | 'invalid' | 'profanity' | 'too_long' | 'future_term' | 'empty_review';
 
@@ -73,6 +78,7 @@ export function parseReviewForm(form: FormData, now = new Date()): ReviewFormRes
 		const name = str(form, 'newInstructorName');
 		if (name.length < 3) errors.newInstructorName = 'required';
 		else if (name.length > 100) errors.newInstructorName = 'too_long';
+		else if (!isValidInstructorName(name)) errors.newInstructorName = 'invalid';
 		else {
 			const bad = findProfanity(name);
 			if (bad.length) {

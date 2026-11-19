@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NEW_INSTRUCTOR, parseReviewForm } from './review-form';
+import { NEW_INSTRUCTOR, isValidInstructorName, parseReviewForm } from './review-form';
 
 const now = new Date(2026, 9, 26);
 
@@ -106,5 +106,21 @@ describe('parseReviewForm', () => {
 				classAverage: 'invalid',
 				curve: 'invalid'
 			});
+	});
+
+	it('validates new instructor names', () => {
+		expect(isValidInstructorName('Ayşe Yılmaz')).toBe(true);
+		expect(isValidInstructorName('Ahmet Burak Can')).toBe(true);
+		expect(isValidInstructorName('Ebru Gökalp-Aydın')).toBe(true);
+		expect(isValidInstructorName('Hoca')).toBe(false);
+		expect(isValidInstructorName('Hoca 123')).toBe(false);
+		expect(isValidInstructorName('<b>x</b> y')).toBe(false);
+		expect(isValidInstructorName('Ali@ Veli')).toBe(false);
+		const bad = parseReviewForm(
+			form({ ...valid, instructor: NEW_INSTRUCTOR, newInstructorName: 'Tekkelime' }),
+			now
+		);
+		expect(bad.ok).toBe(false);
+		if (!bad.ok) expect(bad.errors.newInstructorName).toBe('invalid');
 	});
 });

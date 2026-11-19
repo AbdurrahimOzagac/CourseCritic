@@ -253,6 +253,20 @@ export const reports = sqliteTable(
 	(t) => [primaryKey({ columns: [t.reviewId, t.reporterKey] })]
 );
 
+/**
+ * Öğrencilerin yeni hoca ekleme sınırı (haftada 3). Kullanıcıya ya da hocaya bağlanmaz: `limitKey`,
+ * HMAC(AUTH_SECRET, kullanıcı özeti + hafta) değeridir; sadece sayılır, kimin eklediği anlaşılamaz.
+ */
+export const instructorAdds = sqliteTable(
+	'instructor_adds',
+	{
+		id: id(),
+		limitKey: text('limit_key').notNull(),
+		week: integer('week').notNull()
+	},
+	(t) => [index('instructor_adds_key_idx').on(t.limitKey)]
+);
+
 /** Öğrencilerin ders bilgisi düzeltme / yeni ders önerileri. Admin onaylayınca uygulanır. */
 export const courseSuggestions = sqliteTable('course_suggestions', {
 	id: id(),

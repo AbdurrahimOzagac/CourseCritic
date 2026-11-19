@@ -2,7 +2,7 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { reviews } from '#lib/server/db/schema.ts';
 import { dayStart } from '#lib/server/time.ts';
-import { findOrCreateInstructor } from '#lib/server/instructors.ts';
+import { addInstructorForStudent, confirmInstructorIfUsed } from '#lib/server/instructors.ts';
 import {
 	courseInstructorIds,
 	getCourseBySlug,
@@ -103,10 +103,17 @@ export const actions: Actions = {
 			instructorId = found.id;
 			instructorPending = found.status === 'pending';
 		} else {
-			const created = await findOrCreateInstructor(locals.db, data.instructor, {
-				// Admin'in eklediği hoca da onaya düşer: hemen yayınlanan yorum, yazarın admin olduğunu belli ederdi
-				status: 'pending'
-			});
+			// Öğrencinin eklediği hoca "beklemede" açılır; ikinci bir öğrenci seçince herkese görünür (admin onayı gerekmez).
+			// Admin'in eklediği hoca da aynı yoldan geçer: hemen yayınlanan yorum yazarın admin olduğunu belli ederdi.
+			const created = await addInstructorForStudent(
+				locals.db,
+				locals.env.AUTH_SECRET,
+				locals.user.emailHash,
+				data.instructor.name
+			);
+			if (!created.ok) {
+				return fail(429, { errors: { newInstructorName: 'limit' as const }, profanity: [] });
+			}
 			instructorId = created.id;
 			instructorPending = created.status === 'pending';
 		}
@@ -146,6 +153,11 @@ export const actions: Actions = {
 				return fail(409, { errors: { term: 'duplicate' as const }, profanity: [] });
 			}
 			throw e;
+		}
+
+		// İkinci bir öğrenci aynı hocayı kullandıysa hoca (ve bekleyen değerlendirmeler) herkese görünür olur
+		if (instructorPending && (await confirmInstructorIfUsed(locals.db, instructorId))) {
+			instructorPending = false;
 		}
 
 		const instructor = await locals.db.query.instructors.findFirst({

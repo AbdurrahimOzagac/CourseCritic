@@ -85,9 +85,23 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
 
 ## Hocalar
 
-- Hoca listesini proje sahibi yükler.
-- Kullanıcı değerlendirme yaparken listede olmayan bir hocayı ekleyebilir.
-- Yeni eklenen hoca admin onayına düşer. Onaylanınca o hocaya bağlı değerlendirme de görünür olur.
+- Hoca listesini proje sahibi yükler (bölüm sitesindeki 31 öğretim üyesi eklendi). Hocalar sadece **ad soyad** ile tutulur,
+  ünvan tutulmaz (değişken bir bilgi).
+- Hocaya özel sayfa ya da puan yok; hocalar dersin içinde görünür.
+
+### Karar: hoca eklemeyi admin değil topluluk onaylar (Kasım 2026)
+
+Ölçeklenince admin'in her yeni ismi kontrol etmesi mümkün olmaz. Bunun yerine:
+
+- Öğrenci değerlendirme yazarken listede olmayan hocayı ekleyebilir. Yazarken listedeki **benzer isimler önerilir**; çoğu
+  zaman yeni eklemek yerine var olan seçilir.
+- Yeni hoca "beklemede" açılır: ekleyen öğrenciye dışında kimseye görünmez. **İkinci bir öğrenci** aynı ismi seçince herkese
+  görünür olur ve bekleyen değerlendirmeler yayına girer. Sayım farklı hesaplara göre yapılır.
+- Sınırlar: isim en az iki sözcük (ad ve soyad), sadece harf; küfür filtresi; bir öğrenci **haftada en fazla 3 yeni hoca**
+  ekleyebilir (var olan ismi seçmek hakkı harcamaz). Hak sayacı kimseye bağlı değildir (yalnızca bir HMAC anahtarı).
+- Admin isterse bekleyen hocayı yine elle onaylar, birleştirir ya da reddeder; ama beklemek zorunda değildir.
+- Bilinen risk: iki kişi anlaşıp gerçek bir kişinin adını hoca diye ekleyebilir. Yorumlar yine bildirim ve küfür filtresiyle korunur.
+- Sıradaki iş: admin panelinde "birbirine çok benzeyen hocalar" listesi ve tek tıkla birleştirme.
 
 ## Denetim ve admin
 

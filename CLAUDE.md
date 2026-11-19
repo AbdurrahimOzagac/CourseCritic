@@ -22,6 +22,8 @@ DersSeç / CourseCritic: öğrencilerin ders + hoca + dönem bazında değerlend
 - Bildirimler kişiyi `reporterKey(secret, reviewId, emailHash)` ile tanır, `user_id` ile değil (hesap silinince
   `user_id` boşalır, bildirim sayılmaya devam eder). Gizleme kararı `dismissed = 0` bildirimler sayılarak verilir.
 - Kullanıcı silmek için `deleteUser` / `banUser` kullan.
+- Öğrencinin eklediği hoca `addInstructorForStudent` ile "beklemede" açılır; farklı 2 öğrenci kullanınca `confirmInstructorIfUsed`
+  onaylar. Haftalık hak sayacı (`instructor_adds`) kullanıcıya bağlanmaz.
 - E-posta gizliliği (bkz. docs/guvenlik-incelemesi-2026-10.md, "E-posta gizliliği"):
   - Veritabanına yazılan zamanlar güne yuvarlanır (`dayStart()`); `createdAt()` yardımcısına `.default(sql…)` ekleme
     (Drizzle o zaman `$defaultFn`'i çalıştırmaz).

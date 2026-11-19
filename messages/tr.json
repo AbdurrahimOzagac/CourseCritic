@@ -112,7 +112,7 @@
 	"section_instructor": "Hoca",
 	"instructor_criteria_all_hint": "Bu derste birden fazla hoca var. Hoca puanlarını ayrı görmek için yukarıdan bir hoca seç.",
 	"reviews": "Değerlendirmeler",
-	"review_saved_pending": "Değerlendirmen kaydedildi. Eklediğin hoca admin onayından sonra görünecek.",
+	"review_saved_pending": "Değerlendirmen kaydedildi. Eklediğin hoca, başka bir öğrenci de seçince herkese görünecek; o zamana kadar değerlendirmen yayınlanmaz.",
 	"field_credits": "Kredi",
 	"field_ects": "AKTS",
 	"field_prerequisites": "Ön koşul",
@@ -146,7 +146,7 @@
 	"form_other_instructors": "Diğer hocalar",
 	"form_instructor_not_listed": "Listede yok, yeni hoca ekle",
 	"form_instructor_name": "Ad soyad",
-	"form_new_instructor_note": "Eklediğin hoca admin onayından sonra görünür. Değerlendirmen kaydedilir ve hoca onaylanınca yayınlanır.",
+	"form_new_instructor_note": "Eklediğin hoca, başka bir öğrenci de aynı ismi seçince herkese görünür. O zamana kadar değerlendirmen yayınlanmaz. Hocanın adını ve soyadını eksiksiz yaz.",
 	"form_academic_year": "Akademik yıl",
 	"form_select": "Seç",
 	"pending": "onay bekliyor",
@@ -276,5 +276,10 @@
 	"clear_rating": "Temizle",
 	"form_ratings_hint": "Puanların hepsi isteğe bağlı; bilmediğiniz ya da vermek istemediğiniz puanları boş bırakabilirsiniz. En az bir puan ya da yorum gerekir.",
 	"error_empty_review": "Lütfen en az bir puan verin ya da yorum yazın.",
-	"reviews_anonymous_note": "Tüm değerlendirmeler anonimdir."
+	"reviews_anonymous_note": "Tüm değerlendirmeler anonimdir.",
+	"error_instructor_limit": "Bu hafta en fazla 3 yeni hoca ekleyebilirsin. Hoca zaten listede olabilir; adını yazarak aramayı dene.",
+	"form_instructor_suggestions": "Listede bunlar var. Biri senin aradığın hoca mı?",
+	"form_instructor_exact": "Bu hoca zaten listede:",
+	"form_instructor_pick": "Bu hocayı seç",
+	"error_instructor_name": "Hocanın adını ve soyadını yaz (sadece harf)."
 }
