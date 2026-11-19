@@ -131,8 +131,9 @@ export function courseDescription(course: {
 		: course.descriptionTr || course.descriptionEn;
 }
 
-export function instructorName(i: { title: string | null; name: string }): string {
-	return i.title ? `${i.title} ${i.name}` : i.name;
+/** Hocanın görünen adı: sadece ad soyad (ünvan tutulmaz, değişken bir bilgi). */
+export function instructorName(i: { name: string }): string {
+	return i.name;
 }
 
 export function formatAverage(value: number | null): string {

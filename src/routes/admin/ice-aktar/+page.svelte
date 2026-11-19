@@ -16,8 +16,8 @@
 		{
 			action: 'instructors',
 			title: m.admin_import_instructors,
-			header: 'title,name,courses',
-			example: 'Prof. Dr.,Ad Soyad,BBM 342;BBM 101'
+			header: 'name,courses',
+			example: 'Ad Soyad,CMP 101;CMP 201'
 		}
 	] as const;
 </script>

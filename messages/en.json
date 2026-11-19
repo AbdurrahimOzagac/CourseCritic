@@ -146,7 +146,6 @@
 	"form_course_instructors": "Teaches this course",
 	"form_other_instructors": "Other instructors",
 	"form_instructor_not_listed": "Not listed, add a new instructor",
-	"form_instructor_title": "Title",
 	"form_instructor_name": "Full name",
 	"form_new_instructor_note": "The new instructor appears after admin approval. Your review is saved and published once the instructor is approved.",
 	"form_academic_year": "Academic year",

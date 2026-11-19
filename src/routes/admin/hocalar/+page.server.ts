@@ -10,13 +10,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const all = await locals.db.all<{
 		id: string;
 		slug: string;
-		title: string | null;
 		name: string;
 		status: 'approved' | 'pending';
 		reviewCount: number;
 		courseCodes: string | null;
 	}>(sql`
-		SELECT i.id, i.slug, i.title, i.name, i.status,
+		SELECT i.id, i.slug, i.name, i.status,
 			(SELECT COUNT(*) FROM reviews r WHERE r.instructor_id = i.id) AS reviewCount,
 			(SELECT group_concat(c.code, ', ') FROM course_instructors ci JOIN courses c ON c.id = ci.course_id WHERE ci.instructor_id = i.id) AS courseCodes
 		FROM instructors i
@@ -97,7 +96,7 @@ export const actions: Actions = {
 		if (name.length < 3) return fail(400, { error: 'name' });
 		const instructor = await findOrCreateInstructor(
 			event.locals.db,
-			{ title: field(form, 'title') || null, name },
+			{ name },
 			{ status: 'approved' }
 		);
 		const { ids, missing } = await courseIdsFromCodes(event.locals.db, field(form, 'courses'));
@@ -119,10 +118,7 @@ export const actions: Actions = {
 		const { ids, missing } = await courseIdsFromCodes(event.locals.db, field(form, 'courses'));
 		const db = event.locals.db;
 		await db.batch([
-			db
-				.update(instructors)
-				.set({ title: field(form, 'title') || null, name })
-				.where(eq(instructors.id, id)),
+			db.update(instructors).set({ name }).where(eq(instructors.id, id)),
 			db.delete(courseInstructors).where(eq(courseInstructors.instructorId, id)),
 			...ids.map((courseId) =>
 				db.insert(courseInstructors).values({ courseId, instructorId: id }).onConflictDoNothing()

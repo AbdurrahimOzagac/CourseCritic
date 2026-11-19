@@ -15,7 +15,7 @@
 			<header class="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
 				<div>
 					<a href="/ders/{r.courseSlug}" class="font-medium">{r.courseCode}</a>
-					· {instructorName({ title: r.instructorTitle, name: r.instructorName })}
+					· {r.instructorName}
 					· {termLabel(r.academicYear, r.term)}
 				</div>
 				<div>

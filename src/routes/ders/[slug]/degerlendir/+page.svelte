@@ -119,19 +119,7 @@
 		</div>
 
 		{#if instructor === NEW_INSTRUCTOR}
-			<div
-				class="grid gap-3 rounded border border-amber-200 bg-amber-50 p-3 sm:grid-cols-[10rem_1fr]"
-			>
-				<div>
-					<label class="label" for="newInstructorTitle">{m.form_instructor_title()}</label>
-					<input
-						id="newInstructorTitle"
-						name="newInstructorTitle"
-						placeholder="Dr. Öğr. Üyesi"
-						maxlength="40"
-						class="w-full"
-					/>
-				</div>
+			<div class="grid gap-3 rounded border border-amber-200 bg-amber-50 p-3">
 				<div>
 					<label class="label" for="newInstructorName">{m.form_instructor_name()}</label>
 					<input

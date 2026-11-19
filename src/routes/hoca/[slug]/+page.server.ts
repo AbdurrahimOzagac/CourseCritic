@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const instructor = await getApprovedInstructorBySlug(locals.db, params.slug);
 	if (!instructor) error(404, 'Hoca bulunamadı');
 	return {
-		instructor: { slug: instructor.slug, title: instructor.title, name: instructor.name },
+		instructor: { slug: instructor.slug, name: instructor.name },
 		courses: await getInstructorCourses(locals.db, instructor.id)
 	};
 };

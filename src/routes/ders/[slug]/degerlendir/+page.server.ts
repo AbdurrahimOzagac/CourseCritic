@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	if (existing && !all.some((i) => i.id === existing.instructorId)) {
 		pendingInstructor = await locals.db.query.instructors.findFirst({
 			where: (t, { eq }) => eq(t.id, existing.instructorId),
-			columns: { id: true, slug: true, title: true, name: true }
+			columns: { id: true, slug: true, name: true }
 		});
 	}
 

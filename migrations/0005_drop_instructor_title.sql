@@ -1,0 +1,1 @@
+ALTER TABLE `instructors` DROP COLUMN `title`;

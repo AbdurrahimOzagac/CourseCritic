@@ -10,7 +10,6 @@ const TERM_ORDER_SQL = sql`CASE r.term WHEN 'fall' THEN 1 WHEN 'spring' THEN 2 E
 export interface InstructorRef {
 	id: string;
 	slug: string;
-	title: string | null;
 	name: string;
 }
 
@@ -43,7 +42,7 @@ async function courseInstructorPairs(
 		sql` AND `
 	);
 	return db.all<{ courseId: string } & InstructorRef>(sql`
-		SELECT p.course_id AS courseId, i.id, i.slug, i.title, i.name
+		SELECT p.course_id AS courseId, i.id, i.slug, i.name
 		FROM (
 			SELECT course_id, instructor_id FROM course_instructors
 			UNION
@@ -152,7 +151,6 @@ type RawReview = Omit<ReviewRow, 'instructor' | 'isMine' | 'reportedByMe' | 'edi
 	edited: number;
 	iId: string;
 	iSlug: string;
-	iTitle: string | null;
 	iName: string;
 };
 
@@ -175,18 +173,18 @@ export async function getCourseReviews(
 			r.attempts, r.outcome, r.class_average AS classAverage, r.curve, r.comment,
 			r.updated_at IS NOT NULL AS edited,
 			r.user_id = ${userId ?? ''} AS isMine,
-			i.id AS iId, i.slug AS iSlug, i.title AS iTitle, i.name AS iName
+			i.id AS iId, i.slug AS iSlug, i.name AS iName
 		FROM reviews r
 		JOIN instructors i ON i.id = r.instructor_id
 		WHERE ${sql.join(conditions, sql` AND `)}
 		ORDER BY r.academic_year DESC, ${TERM_ORDER_SQL} DESC, r.created_at DESC, r.id
 	`);
-	return rows.map(({ iId, iSlug, iTitle, iName, isMine, edited, ...r }) => ({
+	return rows.map(({ iId, iSlug, iName, isMine, edited, ...r }) => ({
 		...r,
 		isMine: !!isMine,
 		reportedByMe: false,
 		edited: !!edited,
-		instructor: { id: iId, slug: iSlug, title: iTitle, name: iName }
+		instructor: { id: iId, slug: iSlug, name: iName }
 	}));
 }
 
@@ -233,7 +231,6 @@ export async function listApprovedInstructors(db: Db) {
 		.select({
 			id: instructors.id,
 			slug: instructors.slug,
-			title: instructors.title,
 			name: instructors.name
 		})
 		.from(instructors)

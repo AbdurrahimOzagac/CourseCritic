@@ -15,13 +15,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 		courseSlug: string;
 		courseNameTr: string;
 		courseNameEn: string | null;
-		instructorTitle: string | null;
 		instructorName: string;
 		instructorStatus: 'approved' | 'pending';
 	}>(sql`
 		SELECT r.id, r.academic_year AS academicYear, r.term, r.status,
 			c.code AS courseCode, c.slug AS courseSlug, c.name_tr AS courseNameTr, c.name_en AS courseNameEn,
-			i.title AS instructorTitle, i.name AS instructorName, i.status AS instructorStatus
+			i.name AS instructorName, i.status AS instructorStatus
 		FROM reviews r
 		JOIN courses c ON c.id = r.course_id
 		JOIN instructors i ON i.id = r.instructor_id

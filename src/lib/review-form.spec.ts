@@ -59,13 +59,12 @@ describe('parseReviewForm', () => {
 			form({
 				...valid,
 				instructor: NEW_INSTRUCTOR,
-				newInstructorTitle: 'Dr.',
 				newInstructorName: 'Ayşe Yılmaz'
 			}),
 			now
 		);
 		expect(r.ok).toBe(true);
-		if (r.ok) expect(r.data.instructor).toEqual({ title: 'Dr.', name: 'Ayşe Yılmaz' });
+		if (r.ok) expect(r.data.instructor).toEqual({ name: 'Ayşe Yılmaz' });
 	});
 
 	it('validates optional fields', () => {

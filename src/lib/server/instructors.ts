@@ -6,7 +6,7 @@ import { foldText, slugify } from '#lib/text.ts';
 /** Aynı isimde hoca varsa onu döndürür (onaylı ya da beklemede), yoksa yeni hoca oluşturur. */
 export async function findOrCreateInstructor(
 	db: Db,
-	input: { title: string | null; name: string },
+	input: { name: string },
 	opts: { status: 'approved' | 'pending' }
 ): Promise<{ id: string; status: 'approved' | 'pending' }> {
 	const name = input.name.replace(/\s+/g, ' ').trim();
@@ -21,7 +21,6 @@ export async function findOrCreateInstructor(
 	const [row] = await db
 		.insert(instructors)
 		.values({
-			title: input.title?.trim() || null,
 			name,
 			slug,
 			status: opts.status

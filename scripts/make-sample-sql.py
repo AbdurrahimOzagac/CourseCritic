@@ -45,7 +45,7 @@ links = []
 for i in instructors:
     iid = uid('instructor:' + i['name'])
     out.append(
-        f"INSERT OR IGNORE INTO instructors (id, title, name, slug, status) VALUES ({q(iid)}, {q(i['title'])}, {q(i['name'])}, {q(fold(i['name']).replace(' ', '-'))}, 'approved');"
+        f"INSERT OR IGNORE INTO instructors (id, name, slug, status) VALUES ({q(iid)}, {q(i['name'])}, {q(fold(i['name']).replace(' ', '-'))}, 'approved');"
     )
     for code in i['courses'].split(';'):
         links.append((uid('course:' + code.strip()), iid))

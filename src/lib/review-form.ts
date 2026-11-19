@@ -20,7 +20,7 @@ export const NEW_INSTRUCTOR = '__new__';
 export type FieldError = 'required' | 'invalid' | 'profanity' | 'too_long' | 'future_term';
 
 export interface ReviewInput extends Record<Criterion, number> {
-	instructor: { id: string } | { title: string | null; name: string };
+	instructor: { id: string } | { name: string };
 	academicYear: number;
 	term: Term;
 	attempts: number | null;
@@ -70,16 +70,14 @@ export function parseReviewForm(form: FormData, now = new Date()): ReviewFormRes
 	if (!instructorId) errors.instructor = 'required';
 	else if (instructorId === NEW_INSTRUCTOR) {
 		const name = str(form, 'newInstructorName');
-		const title = str(form, 'newInstructorTitle') || null;
 		if (name.length < 3) errors.newInstructorName = 'required';
-		else if (name.length > 100 || (title && title.length > 40))
-			errors.newInstructorName = 'too_long';
+		else if (name.length > 100) errors.newInstructorName = 'too_long';
 		else {
-			const bad = findProfanity(`${title ?? ''} ${name}`);
+			const bad = findProfanity(name);
 			if (bad.length) {
 				errors.newInstructorName = 'profanity';
 				profanity = profanity.concat(bad);
-			} else instructor = { title, name };
+			} else instructor = { name };
 		}
 	} else instructor = { id: instructorId };
 

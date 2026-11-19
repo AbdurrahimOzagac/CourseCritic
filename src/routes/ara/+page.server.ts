@@ -24,6 +24,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	return {
 		q,
 		courses: allCourses.filter((c) => matchesQuery(q, c.code, c.nameTr, c.nameEn)).slice(0, 50),
-		instructors: allInstructors.filter((i) => matchesQuery(q, i.title, i.name)).slice(0, 50)
+		instructors: allInstructors.filter((i) => matchesQuery(q, i.name)).slice(0, 50)
 	};
 };

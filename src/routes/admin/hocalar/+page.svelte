@@ -59,17 +59,9 @@
 	<form
 		method="POST"
 		action="?/create"
-		class="grid gap-3 card p-4 sm:grid-cols-[10rem_1fr_1fr_auto] sm:items-end"
+		class="grid gap-3 card p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
 		use:enhance
 	>
-		<div>
-			<label class="label" for="new-title">{m.form_instructor_title()}</label><input
-				id="new-title"
-				name="title"
-				class="w-full"
-				placeholder="Prof. Dr."
-			/>
-		</div>
 		<div>
 			<label class="label" for="new-name">{m.form_instructor_name()}</label><input
 				id="new-name"
@@ -112,7 +104,7 @@
 								<form
 									method="POST"
 									action="?/update"
-									class="grid gap-2 sm:grid-cols-[8rem_1fr_1fr_auto_auto]"
+									class="grid gap-2 sm:grid-cols-[1fr_1fr_auto_auto]"
 									use:enhance={() =>
 										async ({ update }) => {
 											await update();
@@ -120,11 +112,6 @@
 										}}
 								>
 									<input type="hidden" name="id" value={i.id} />
-									<input
-										name="title"
-										value={i.title ?? ''}
-										placeholder={m.form_instructor_title()}
-									/>
 									<input name="name" value={i.name} required minlength="3" />
 									<input
 										name="courses"

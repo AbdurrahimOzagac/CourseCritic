@@ -39,7 +39,7 @@
 							>{r.courseCode} {courseName({ nameTr: r.courseNameTr, nameEn: r.courseNameEn })}</a
 						></td
 					>
-					<td>{instructorName({ title: r.instructorTitle, name: r.instructorName })}</td>
+					<td>{r.instructorName}</td>
 					<td>{termLabel(r.academicYear, r.term)}</td>
 					<td>
 						{#if r.status === 'hidden'}

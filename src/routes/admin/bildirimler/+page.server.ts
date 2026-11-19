@@ -16,12 +16,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		term: Term;
 		courseCode: string;
 		courseSlug: string;
-		instructorTitle: string | null;
 		instructorName: string;
 		reasons: string | null;
 	}>(sql`
 		SELECT r.id, r.status, r.report_count AS reportCount, r.comment, r.academic_year AS academicYear, r.term,
-			c.code AS courseCode, c.slug AS courseSlug, i.title AS instructorTitle, i.name AS instructorName,
+			c.code AS courseCode, c.slug AS courseSlug, i.name AS instructorName,
 			(SELECT json_group_array(p.reason) FROM reports p WHERE p.review_id = r.id AND p.reason IS NOT NULL AND p.dismissed = 0) AS reasons
 		FROM reviews r
 		JOIN courses c ON c.id = r.course_id

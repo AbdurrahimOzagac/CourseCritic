@@ -75,7 +75,7 @@ export const actions: Actions = {
 			}
 			const instructor = await findOrCreateInstructor(
 				event.locals.db,
-				{ title: row.title || null, name },
+				{ name },
 				{ status: 'approved' }
 			);
 			processed++;

@@ -143,8 +143,6 @@ export const courseEquivalents = sqliteTable(
 
 export const instructors = sqliteTable('instructors', {
 	id: id(),
-	/** Ünvan, ör. "Prof. Dr." */
-	title: text('title'),
 	name: text('name').notNull(),
 	slug: text('slug').notNull().unique(),
 	/** Kullanıcıların eklediği hocalar admin onayına kadar "pending" kalır. */
