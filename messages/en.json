@@ -295,9 +295,12 @@
 	"form_ratings_hint": "All ratings are optional; leave out any you do not know or do not want to give. At least one rating or a comment is required.",
 	"error_empty_review": "Please give at least one rating or write a comment.",
 	"reviews_anonymous_note": "All reviews are anonymous.",
-	"error_instructor_limit": "You can add at most 3 new instructors per week. The instructor may already be listed; try searching by name.",
 	"form_instructor_suggestions": "These are already listed. Is one of them the instructor you mean?",
 	"form_instructor_exact": "This instructor is already listed:",
 	"form_instructor_pick": "Select this instructor",
-	"error_instructor_name": "Write the instructor's first and last name (letters only)."
+	"error_instructor_name": "Write the instructor's first and last name (letters only).",
+	"instructor_adds_remaining": "You added {used} new instructors this month. {remaining} left.",
+	"instructor_adds_exhausted": "You added {limit} new instructors this month and cannot add more. The limit resets at the start of the month. The instructor may already be listed; try searching by name.",
+	"course_adds_remaining": "You have suggested {used} courses so far. {remaining} left.",
+	"course_adds_exhausted": "An account can suggest at most {limit} courses. You have reached that limit."
 }

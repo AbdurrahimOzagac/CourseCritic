@@ -97,8 +97,8 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
   zaman yeni eklemek yerine var olan seçilir.
 - Yeni hoca "beklemede" açılır: ekleyen öğrenciye dışında kimseye görünmez. **İkinci bir öğrenci** aynı ismi seçince herkese
   görünür olur ve bekleyen değerlendirmeler yayına girer. Sayım farklı hesaplara göre yapılır.
-- Sınırlar: isim en az iki sözcük (ad ve soyad), sadece harf; küfür filtresi; bir öğrenci **haftada en fazla 3 yeni hoca**
-  ekleyebilir (var olan ismi seçmek hakkı harcamaz). Hak sayacı kimseye bağlı değildir (yalnızca bir HMAC anahtarı).
+- Sınırlar: isim en az iki sözcük (ad ve soyad), sadece harf; küfür filtresi; bir öğrenci **ayda en fazla 30 yeni hoca**
+  ekleyebilir (var olan ismi seçmek hakkı harcamaz). Formda bu ay kaç hoca eklediği ve kalan hakkı görünür. Hak sayacı kimseye bağlı değildir (yalnızca bir HMAC anahtarı).
 - Admin isterse bekleyen hocayı yine elle onaylar, birleştirir ya da reddeder; ama beklemek zorunda değildir.
 - Bilinen risk: iki kişi anlaşıp gerçek bir kişinin adını hoca diye ekleyebilir. Yorumlar yine bildirim ve küfür filtresiyle korunur.
 - Sıradaki iş: admin panelinde "birbirine çok benzeyen hocalar" listesi ve tek tıkla birleştirme.
@@ -144,6 +144,7 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
 - Giriş yapmış her kullanıcı, admin onayı beklemeden yeni ders ekleyebilecek.
 - Gerekçe: ders kodu tekil olduğu için aynı ders iki kez eklenemez.
 - Henüz uygulanmadı: şu an yeni ders "öneri" olarak admin onayına düşüyor.
+- Sınır: hesap başına toplam **120 yeni ders** (öneri de olsa doğrudan ekleme de olsa). Formda kalan hak görünür.
 - Uygularken dikkat: kod biçimi denetimi ve küfür filtresi kalmalı; yanlış ya da uydurma eklenen dersi admin
   düzeltebilmeli ya da silebilmeli.
 

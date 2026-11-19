@@ -1,16 +1,11 @@
 import { and, eq, sql } from 'drizzle-orm';
 import type { Db } from './db';
-import { hmac } from './crypto';
-import { instructorAdds, instructors, reviews } from './db/schema';
+import { instructors, reviews } from './db/schema';
+import { useAddSlot } from './limits';
 import { foldText, slugify } from '#lib/text.ts';
 
-/** Bir öğrenci haftada en fazla bu kadar yeni hoca ekleyebilir. */
-export const MAX_NEW_INSTRUCTORS_PER_WEEK = 3;
 /** Öğrencinin eklediği hoca, bu kadar farklı öğrenci kullanınca herkese görünür. */
 export const INSTRUCTOR_CONFIRMATIONS = 2;
-
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const currentWeek = () => Math.floor(Date.now() / WEEK_MS);
 
 /** Aynı isimde (Türkçe karakterden bağımsız) hoca var mı? Onaylı ya da beklemede olabilir. */
 export async function findInstructorByName(
@@ -47,7 +42,7 @@ export async function findOrCreateInstructor(
 
 /**
  * Öğrencinin yeni hoca eklemesi. İsim zaten varsa o hoca kullanılır ve sınır harcanmaz (ikinci öğrenci aynı ismi
- * yazarak ilkini onaylamış olur). Yoksa haftalık sınır kontrol edilir ve hoca "beklemede" oluşturulur.
+ * yazarak ilkini onaylamış olur). Yoksa aylık sınır (limits.ts) kontrol edilir ve hoca "beklemede" oluşturulur.
  */
 export async function addInstructorForStudent(
 	db: Db,
@@ -61,17 +56,9 @@ export async function addInstructorForStudent(
 	const existing = await findInstructorByName(db, name);
 	if (existing) return { ok: true, ...existing };
 
-	const week = currentWeek();
-	// Eski haftaların kayıtları temizlenir
-	await db.delete(instructorAdds).where(sql`${instructorAdds.week} < ${week - 2}`);
-	const limitKey = await hmac(secret, `ia:${userEmailHash}:${week}`);
-	const [{ n }] = await db
-		.select({ n: sql<number>`COUNT(*)` })
-		.from(instructorAdds)
-		.where(and(eq(instructorAdds.limitKey, limitKey), eq(instructorAdds.week, week)));
-	if (n >= MAX_NEW_INSTRUCTORS_PER_WEEK) return { ok: false, reason: 'limit' };
+	if (!(await useAddSlot(db, secret, 'instructor', userEmailHash)))
+		return { ok: false, reason: 'limit' };
 
-	await db.insert(instructorAdds).values({ limitKey, week });
 	return { ok: true, ...(await createInstructor(db, name, 'pending')) };
 }
 

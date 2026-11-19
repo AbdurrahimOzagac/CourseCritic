@@ -3,6 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import { reviews } from '#lib/server/db/schema.ts';
 import { dayStart } from '#lib/server/time.ts';
 import { addInstructorForStudent, confirmInstructorIfUsed } from '#lib/server/instructors.ts';
+import { addAllowance } from '#lib/server/limits.ts';
 import {
 	courseInstructorIds,
 	getCourseBySlug,
@@ -19,9 +20,10 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const course = await getCourseBySlug(locals.db, params.slug);
 	if (!course) error(404, 'Ders bulunamadı');
 
-	const [all, linked] = await Promise.all([
+	const [all, linked, instructorAdds] = await Promise.all([
 		listApprovedInstructors(locals.db),
-		courseInstructorIds(locals.db, course.id)
+		courseInstructorIds(locals.db, course.id),
+		addAllowance(locals.db, locals.env.AUTH_SECRET, 'instructor', locals.user.emailHash)
 	]);
 
 	const reviewId = url.searchParams.get('id');
@@ -78,7 +80,9 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 					comment: existing.comment
 				}
 			: null,
-		preselected
+		preselected,
+		/** Bu ay kaç yeni hoca eklendiği ve kalan hak: "listede yok" seçilince uyarı olarak gösterilir */
+		instructorAdds
 	};
 };
 

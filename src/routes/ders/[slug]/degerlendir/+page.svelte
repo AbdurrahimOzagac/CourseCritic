@@ -97,8 +97,6 @@
 				return m.error_too_long();
 			case 'future_term':
 				return m.error_future_term();
-			case 'limit':
-				return m.error_instructor_limit();
 			case 'empty_review':
 				return m.error_empty_review();
 			case 'duplicate':
@@ -214,7 +212,20 @@
 					</div>
 				{/if}
 				<p class="text-sm text-amber-800 sm:col-span-2">{m.form_new_instructor_note()}</p>
-				{#if errors.newInstructorName}
+				<!-- Aylık ekleme hakkı: sınır dolunca gönderilmeden önce görünsün -->
+				{#if data.instructorAdds.remaining === 0 || errors.newInstructorName === 'limit'}
+					<p class="text-sm font-medium text-red-700 sm:col-span-2">
+						{m.instructor_adds_exhausted({ limit: data.instructorAdds.limit })}
+					</p>
+				{:else if data.instructorAdds.used > 0}
+					<p class="text-sm text-slate-600 sm:col-span-2">
+						{m.instructor_adds_remaining({
+							used: data.instructorAdds.used,
+							remaining: data.instructorAdds.remaining
+						})}
+					</p>
+				{/if}
+				{#if errors.newInstructorName && errors.newInstructorName !== 'limit'}
 					<p class="text-sm text-red-700 sm:col-span-2">
 						{errors.newInstructorName === 'invalid'
 							? m.error_instructor_name()

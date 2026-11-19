@@ -21,7 +21,19 @@
 		<p class="text-green-800">{m.suggestion_thanks()}</p>
 		<a href="/" class="mt-3 inline-block">{m.nav_courses()}</a>
 	</div>
+{:else if data.courseAdds?.remaining === 0 || form?.errors?.limit}
+	<p class="max-w-3xl card p-6 text-red-700">
+		{m.course_adds_exhausted({ limit: data.courseAdds?.limit ?? 0 })}
+	</p>
 {:else}
+	{#if data.courseAdds && data.courseAdds.used > 0}
+		<p class="mb-4 text-sm text-slate-600">
+			{m.course_adds_remaining({
+				used: data.courseAdds.used,
+				remaining: data.courseAdds.remaining
+			})}
+		</p>
+	{/if}
 	{#if form?.existing}
 		<p class="mb-4 text-sm text-amber-800">
 			{m.course_already_exists()} <a href="/ders/{form.existing}">{m.go_to_course()}</a>
