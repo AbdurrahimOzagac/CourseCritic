@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Criterion } from '#lib/constants.ts';
+	import { m } from '#lib/paraglide/messages.js';
 	import { criterionHint, criterionName, scaleLabels } from '#lib/i18n.ts';
 
 	let {
@@ -22,19 +23,21 @@
 				class="flex cursor-pointer flex-col items-center justify-center gap-1 border-l border-slate-200 px-1 py-2 text-center text-[11px] leading-tight first:border-l-0 sm:text-xs
 				{value === i + 1 ? 'bg-brand-700 text-white' : 'bg-white text-slate-700 hover:bg-brand-50'}"
 			>
-				<input
-					type="radio"
-					class="sr-only"
-					name={criterion}
-					value={i + 1}
-					bind:group={value}
-					required
-				/>
+				<input type="radio" class="sr-only" name={criterion} value={i + 1} bind:group={value} />
 				<span class="font-semibold">{i + 1}</span>
 				<span class="hidden sm:block">{label}</span>
 			</label>
 		{/each}
 	</div>
-	<div class="min-h-5 text-sm text-brand-700 sm:hidden">{value ? labels[value - 1] : ''}</div>
+	<div class="flex min-h-5 items-center justify-between text-sm">
+		<span class="text-brand-700 sm:hidden">{value ? labels[value - 1] : ''}</span>
+		{#if value}
+			<button
+				type="button"
+				class="ml-auto text-xs text-slate-500 hover:underline"
+				onclick={() => (value = null)}>{m.clear_rating()}</button
+			>
+		{/if}
+	</div>
 	{#if error}<p class="text-sm text-red-700">{error}</p>{/if}
 </fieldset>

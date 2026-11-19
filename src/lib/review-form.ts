@@ -17,9 +17,10 @@ import { isTermAllowed } from './terms';
 
 export const NEW_INSTRUCTOR = '__new__';
 
-export type FieldError = 'required' | 'invalid' | 'profanity' | 'too_long' | 'future_term';
+export type FieldError =
+	'required' | 'invalid' | 'profanity' | 'too_long' | 'future_term' | 'empty_review';
 
-export interface ReviewInput extends Record<Criterion, number> {
+export interface ReviewInput extends Record<Criterion, number | null> {
 	instructor: { id: string } | { name: string };
 	academicYear: number;
 	term: Term;
@@ -89,10 +90,16 @@ export function parseReviewForm(form: FormData, now = new Date()): ReviewFormRes
 		errors.term = 'future_term';
 	}
 
-	const ratings = {} as Record<Criterion, number>;
+	// Puanların hepsi isteğe bağlı: boş bırakılan kriter null kalır, ortalamaya girmez
+	const ratings = {} as Record<Criterion, number | null>;
 	for (const c of CRITERIA) {
-		const n = Number(str(form, c));
-		if (!Number.isInteger(n) || n < SCALE_MIN || n > SCALE_MAX) errors[c] = 'required';
+		const raw = str(form, c);
+		if (!raw) {
+			ratings[c] = null;
+			continue;
+		}
+		const n = Number(raw);
+		if (!Number.isInteger(n) || n < SCALE_MIN || n > SCALE_MAX) errors[c] = 'invalid';
 		else ratings[c] = n;
 	}
 
@@ -116,6 +123,11 @@ export function parseReviewForm(form: FormData, now = new Date()): ReviewFormRes
 			errors.comment = 'profanity';
 			profanity = profanity.concat(bad);
 		}
+	}
+
+	// Boş bir değerlendirme anlamsız: en az bir puan ya da yorum olmalı
+	if (!Object.keys(errors).length && CRITERIA.every((c) => ratings[c] === null) && !comment) {
+		errors.ratings = 'empty_review';
 	}
 
 	if (Object.keys(errors).length || !instructor) return { ok: false, errors, profanity };

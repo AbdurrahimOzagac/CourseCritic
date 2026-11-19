@@ -190,13 +190,13 @@ export const reviews = sqliteTable(
 		academicYear: integer('academic_year').notNull(),
 		term: text('term', { enum: TERMS }).notNull(),
 
-		// 7 basamaklı ölçekler (1-7)
-		difficulty: integer('difficulty').notNull(),
-		workload: integer('workload').notNull(),
-		teachingValue: integer('teaching_value').notNull(),
-		instructorClarity: integer('instructor_clarity').notNull(),
-		instructorAttitude: integer('instructor_attitude').notNull(),
-		instructorExpertise: integer('instructor_expertise').notNull(),
+		// 7 basamaklı ölçekler (1-7). Hepsi isteğe bağlı; boş bırakılan kriter ortalamaya girmez.
+		difficulty: integer('difficulty'),
+		workload: integer('workload'),
+		teachingValue: integer('teaching_value'),
+		instructorClarity: integer('instructor_clarity'),
+		instructorAttitude: integer('instructor_attitude'),
+		instructorExpertise: integer('instructor_expertise'),
 
 		// İsteğe bağlı bilgiler
 		attempts: integer('attempts'),

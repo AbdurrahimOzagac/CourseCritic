@@ -132,12 +132,12 @@ export interface ReviewRow {
 	instructor: InstructorRef;
 	academicYear: number;
 	term: Term;
-	difficulty: number;
-	workload: number;
-	teachingValue: number;
-	instructorClarity: number;
-	instructorAttitude: number;
-	instructorExpertise: number;
+	difficulty: number | null;
+	workload: number | null;
+	teachingValue: number | null;
+	instructorClarity: number | null;
+	instructorAttitude: number | null;
+	instructorExpertise: number | null;
 	attempts: number | null;
 	outcome: Outcome | null;
 	classAverage: number | null;

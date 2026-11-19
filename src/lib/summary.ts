@@ -1,6 +1,6 @@
 import { CRITERIA, SCALE_MAX, type Criterion, type CurveAnswer, type Outcome } from './constants';
 
-export type Ratings = Record<Criterion, number>;
+export type Ratings = Record<Criterion, number | null>;
 
 export interface CriterionSummary {
 	n: number;
@@ -36,7 +36,10 @@ export function summarizeCriterion(values: number[]): CriterionSummary {
 
 export function summarizeReviews(reviews: SummarizableReview[]): ReviewSummary {
 	const criteria = Object.fromEntries(
-		CRITERIA.map((c) => [c, summarizeCriterion(reviews.map((r) => r[c]))])
+		CRITERIA.map((c) => [
+			c,
+			summarizeCriterion(reviews.map((r) => r[c]).filter((v): v is number => v !== null))
+		])
 	) as Record<Criterion, CriterionSummary>;
 
 	const averages = reviews.map((r) => r.classAverage).filter((v): v is number => v !== null);

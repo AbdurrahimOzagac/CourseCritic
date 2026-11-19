@@ -59,10 +59,13 @@
 
 	<dl class="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
 		{#each CRITERIA as c (c)}
-			<div class="flex justify-between gap-2">
-				<dt class="text-slate-500">{criterionName(c)}</dt>
-				<dd class="font-medium text-slate-800">{scaleLabel(c, review[c])}</dd>
-			</div>
+			{@const level = review[c]}
+			{#if level !== null}
+				<div class="flex justify-between gap-2">
+					<dt class="text-slate-500">{criterionName(c)}</dt>
+					<dd class="font-medium text-slate-800">{scaleLabel(c, level)}</dd>
+				</div>
+			{/if}
 		{/each}
 		{#if review.classAverage !== null}
 			<div class="flex justify-between gap-2">

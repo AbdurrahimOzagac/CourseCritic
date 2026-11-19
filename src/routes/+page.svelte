@@ -150,9 +150,18 @@
 						{/each}
 					</td>
 					{#if c.reviewCount >= MIN_REVIEWS_FOR_SUMMARY}
-						<td>{scaleLabel('difficulty', Math.round(c.difficulty!))}</td>
-						<td>{scaleLabel('workload', Math.round(c.workload!))}</td>
-						<td>{scaleLabel('teachingValue', Math.round(c.teachingValue!))}</td>
+						<!-- Puanlar isteğe bağlı: bir kriter için hiç puan yoksa "–" -->
+						<td
+							>{c.difficulty === null
+								? '–'
+								: scaleLabel('difficulty', Math.round(c.difficulty))}</td
+						>
+						<td>{c.workload === null ? '–' : scaleLabel('workload', Math.round(c.workload))}</td>
+						<td>
+							{c.teachingValue === null
+								? '–'
+								: scaleLabel('teachingValue', Math.round(c.teachingValue))}
+						</td>
 					{:else}
 						<td colspan="3" class="text-slate-400 italic">
 							{c.reviewCount ? m.not_enough_reviews({ count: c.reviewCount }) : m.no_reviews_yet()}

@@ -11,7 +11,15 @@
 		TERMS,
 		type Criterion
 	} from '#lib/constants.ts';
-	import { courseName, curveName, instructorName, outcomeName, termName } from '#lib/i18n.ts';
+	import {
+		courseName,
+		criterionName,
+		curveName,
+		instructorName,
+		outcomeName,
+		termName
+	} from '#lib/i18n.ts';
+	import { CRITERIA } from '#lib/constants.ts';
 	import { m } from '#lib/paraglide/messages.js';
 	import { findProfanity } from '#lib/profanity.ts';
 	import { NEW_INSTRUCTOR } from '#lib/review-form.ts';
@@ -34,8 +42,34 @@
 		instructorAttitude: e?.instructorAttitude ?? null,
 		instructorExpertise: e?.instructorExpertise ?? null
 	});
+	// İsteğe bağlı alanlar state'e bağlanır: bağlanmayan `value={…}` alanları başka bir alana yazınca
+	// (ör. yorum) sıfırlanabiliyordu ve girilen sınıf ortalaması sessizce kayboluyordu
+	let attempts = $state(e?.attempts ? String(e.attempts) : '');
+	let outcome = $state<string>(e?.outcome ?? '');
+	let classAverage = $state<number | null>(e?.classAverage ?? null);
+	let curve = $state<string>(e?.curve ?? '');
 	let comment = $state(e?.comment ?? '');
 	let submitting = $state(false);
+
+	// Gönder'e basınca açılan onay penceresi: boş bırakılan isteğe bağlı alanları listeler
+	let formEl: HTMLFormElement;
+	let dialogEl: HTMLDialogElement;
+	let unfilled = $state<string[]>([]);
+	let confirmed = false;
+
+	function unfilledFields(data: FormData): string[] {
+		const fields: [string, () => string][] = [
+			...CRITERIA.map((c): [string, () => string] => [c, () => criterionName(c)]),
+			['attempts', m.field_attempts],
+			['outcome', m.field_outcome],
+			['classAverage', m.field_class_average],
+			['curve', m.field_curve],
+			['comment', m.field_comment]
+		];
+		return fields
+			.filter(([name]) => !String(data.get(name) ?? '').trim())
+			.map(([, label]) => label());
+	}
 
 	const flagged = $derived(comment ? findProfanity(comment) : []);
 	const errors = $derived((form?.errors ?? {}) as Record<string, string | undefined>);
@@ -52,6 +86,8 @@
 				return m.error_too_long();
 			case 'future_term':
 				return m.error_future_term();
+			case 'empty_review':
+				return m.error_empty_review();
 			case 'duplicate':
 				return m.error_duplicate_review();
 			default:
@@ -75,7 +111,15 @@
 <form
 	method="POST"
 	class="flex max-w-3xl flex-col gap-8"
-	use:enhance={() => {
+	bind:this={formEl}
+	use:enhance={({ formData, cancel }) => {
+		if (!confirmed) {
+			cancel();
+			unfilled = unfilledFields(formData);
+			dialogEl.showModal();
+			return;
+		}
+		confirmed = false;
 		submitting = true;
 		return async ({ update }) => {
 			await update({ reset: false });
@@ -174,7 +218,10 @@
 
 	<!-- Ders -->
 	<section class="flex flex-col gap-6 card p-5">
-		<h2 class="font-semibold text-brand-900">{m.section_course()}</h2>
+		<div>
+			<h2 class="font-semibold text-brand-900">{m.section_course()}</h2>
+			<p class="text-sm text-slate-500">{m.form_ratings_hint()}</p>
+		</div>
 		{#each COURSE_CRITERIA as c (c)}
 			<ScaleInput criterion={c} bind:value={ratings[c]} error={errorText(errors[c])} />
 		{/each}
@@ -197,12 +244,7 @@
 		<div class="grid gap-4 sm:grid-cols-2">
 			<div>
 				<label class="label" for="attempts">{m.field_attempts()}</label>
-				<select
-					id="attempts"
-					name="attempts"
-					class="w-full"
-					value={e?.attempts ? String(e.attempts) : ''}
-				>
+				<select id="attempts" name="attempts" class="w-full" bind:value={attempts}>
 					<option value="">–</option>
 					{#each Array.from({ length: MAX_ATTEMPTS }, (_, i) => i + 1) as n (n)}
 						<option value={String(n)}>{n === MAX_ATTEMPTS ? `${n}+` : n}</option>
@@ -211,7 +253,7 @@
 			</div>
 			<div>
 				<label class="label" for="outcome">{m.field_outcome()}</label>
-				<select id="outcome" name="outcome" class="w-full" value={e?.outcome ?? ''}>
+				<select id="outcome" name="outcome" class="w-full" bind:value={outcome}>
 					<option value="">–</option>
 					{#each OUTCOMES as o (o)}
 						<option value={o}>{outcomeName(o)}</option>
@@ -229,7 +271,7 @@
 					inputmode="numeric"
 					placeholder="0–100"
 					class="w-full"
-					value={e?.classAverage ?? ''}
+					bind:value={classAverage}
 				/>
 				<p class="mt-1 text-xs text-slate-500">{m.field_class_average_hint()}</p>
 				{#if errorText(errors.classAverage)}<p class="mt-1 text-sm text-red-700">
@@ -238,7 +280,7 @@
 			</div>
 			<div>
 				<label class="label" for="curve">{m.field_curve()}</label>
-				<select id="curve" name="curve" class="w-full" value={e?.curve ?? ''}>
+				<select id="curve" name="curve" class="w-full" bind:value={curve}>
 					<option value="">–</option>
 					{#each CURVE_ANSWERS as c (c)}
 						<option value={c}>{curveName(c)}</option>
@@ -279,6 +321,9 @@
 		<p class="mt-1 text-red-800">{m.rules_anonymity_note()}</p>
 	</div>
 
+	{#if errors.ratings}
+		<p class="text-sm text-red-700">{errorText(errors.ratings)}</p>
+	{/if}
 	{#if form?.errors}
 		<p class="text-sm text-red-700">{m.error_form()}</p>
 	{/if}
@@ -290,3 +335,35 @@
 		</button>
 	</div>
 </form>
+
+<dialog
+	bind:this={dialogEl}
+	class="m-auto w-[min(32rem,calc(100vw-2rem))] rounded border border-slate-300 bg-white p-0 shadow-xl backdrop:bg-slate-900/40"
+>
+	<div class="flex flex-col gap-4 p-5">
+		<h2 class="text-lg font-semibold text-brand-900">{m.confirm_title()}</h2>
+		{#if unfilled.length}
+			<div>
+				<p class="text-sm text-slate-700">{m.confirm_unfilled_intro()}</p>
+				<ul class="mt-2 list-disc pl-5 text-sm text-slate-700">
+					{#each unfilled as label (label)}<li>{label}</li>{/each}
+				</ul>
+			</div>
+		{/if}
+		<p class="text-sm text-slate-700">{e ? m.confirm_save() : m.confirm_send()}</p>
+		<div class="flex justify-end gap-3">
+			<button type="button" class="btn btn-secondary" onclick={() => dialogEl.close()}>
+				{m.confirm_back()}
+			</button>
+			<button
+				type="button"
+				class="btn btn-primary"
+				onclick={() => {
+					confirmed = true;
+					dialogEl.close();
+					formEl.requestSubmit();
+				}}>{m.confirm_yes()}</button
+			>
+		</div>
+	</div>
+</dialog>

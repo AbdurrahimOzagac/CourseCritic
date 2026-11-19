@@ -267,5 +267,14 @@
 	"admin_import_courses_result": "{created} ders eklendi, {updated} ders güncellendi.",
 	"admin_import_instructors_result": "{processed} hoca işlendi, {links} ders bağlantısı eklendi.",
 	"legal_draft_note": "Bu metin taslaktır ve yayına çıkmadan önce hukuki olarak gözden geçirilmelidir.",
-	"review_count": "{count} değerlendirme"
+	"review_count": "{count} değerlendirme",
+	"confirm_title": "Emin misiniz?",
+	"confirm_unfilled_intro": "Şu alanları doldurmadınız:",
+	"confirm_send": "Değerlendirmeniz \"Anonim öğrenci\" olarak yayınlanacak. Göndermek istiyor musunuz?",
+	"confirm_save": "Değişiklikleriniz kaydedilecek. Devam etmek istiyor musunuz?",
+	"confirm_back": "Geri dön",
+	"confirm_yes": "Evet, gönder",
+	"clear_rating": "Temizle",
+	"form_ratings_hint": "Puanların hepsi isteğe bağlı; bilmediğiniz ya da vermek istemediğiniz puanları boş bırakabilirsiniz. En az bir puan ya da yorum gerekir.",
+	"error_empty_review": "Lütfen en az bir puan verin ya da yorum yazın."
 }

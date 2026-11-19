@@ -35,4 +35,25 @@ describe('summary', () => {
 		expect(s.curve.yes).toBe(2);
 		expect(s.outcomes).toEqual({ passed: 1, failed: 0, dropped: 1, ongoing: 0 });
 	});
+
+	it('ignores skipped ratings', () => {
+		const base = {
+			difficulty: 4,
+			workload: null,
+			teachingValue: 6,
+			instructorClarity: null,
+			instructorAttitude: null,
+			instructorExpertise: null,
+			classAverage: null,
+			curve: null,
+			outcome: null
+		};
+		const s = summarizeReviews([base, { ...base, difficulty: 6, teachingValue: null }]);
+		expect(s.n).toBe(2);
+		expect(s.criteria.difficulty.n).toBe(2);
+		expect(s.criteria.difficulty.average).toBe(5);
+		expect(s.criteria.workload.n).toBe(0);
+		expect(s.criteria.workload.average).toBeNull();
+		expect(s.criteria.teachingValue.n).toBe(1);
+	});
 });

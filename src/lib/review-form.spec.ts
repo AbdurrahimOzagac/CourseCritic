@@ -33,10 +33,37 @@ describe('parseReviewForm', () => {
 		}
 	});
 
-	it('requires all ratings', () => {
-		const r = parseReviewForm(form({ ...valid, workload: '', difficulty: '8' }), now);
+	it('allows skipping ratings', () => {
+		const r = parseReviewForm(form({ ...valid, workload: '', instructorExpertise: '' }), now);
+		expect(r.ok).toBe(true);
+		if (r.ok) {
+			expect(r.data.workload).toBeNull();
+			expect(r.data.instructorExpertise).toBeNull();
+			expect(r.data.difficulty).toBe(5);
+		}
+	});
+
+	it('rejects out-of-range ratings', () => {
+		const r = parseReviewForm(form({ ...valid, difficulty: '8', workload: '0' }), now);
 		expect(r.ok).toBe(false);
-		if (!r.ok) expect(r.errors).toMatchObject({ workload: 'required', difficulty: 'required' });
+		if (!r.ok) expect(r.errors).toMatchObject({ difficulty: 'invalid', workload: 'invalid' });
+	});
+
+	it('requires at least one rating or a comment', () => {
+		const none = {
+			...valid,
+			difficulty: '',
+			workload: '',
+			teachingValue: '',
+			instructorClarity: '',
+			instructorAttitude: '',
+			instructorExpertise: ''
+		};
+		const empty = parseReviewForm(form(none), now);
+		expect(empty.ok).toBe(false);
+		if (!empty.ok) expect(empty.errors.ratings).toBe('empty_review');
+		expect(parseReviewForm(form({ ...none, comment: 'Sadece yorum' }), now).ok).toBe(true);
+		expect(parseReviewForm(form({ ...none, workload: '3' }), now).ok).toBe(true);
 	});
 
 	it('rejects future terms', () => {

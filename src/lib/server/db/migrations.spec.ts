@@ -116,4 +116,37 @@ describe('migrations', () => {
 		const [session] = db.prepare('SELECT expires_at FROM sessions').all();
 		expect(Number(session.expires_at) % 86400).toBe(0);
 	});
+
+	// 0006 reviews tablosunu yeniden kurar; reports ona bağlı. D1'de üst tabloyu silmek bağlı satırları silebilir:
+	// satır sayıları ve yabancı anahtarlar verili bir veritabanında denetlenir.
+	it('0006 veri kaybetmeden uygulanır ve puanlar boş olabilir', () => {
+		const db = migratedDb('0006');
+		db.exec(`
+			INSERT INTO departments (id, code, university, name_tr, name_en) VALUES ('d', 'D', 'U', 'B', 'B');
+			INSERT INTO courses (id, department_id, code, slug, name_tr) VALUES ('c', 'd', 'CMP 1', 'cmp1', 'Ders');
+			INSERT INTO instructors (id, name, slug) VALUES ('i', 'Hoca', 'hoca');
+			INSERT INTO users (id, email_hash) VALUES ('u1', 'h1');
+			INSERT INTO reviews (id, user_id, course_id, instructor_id, academic_year, term, difficulty, workload,
+				teaching_value, instructor_clarity, instructor_attitude, instructor_expertise, created_at)
+				VALUES ('r', 'u1', 'c', 'i', 2024, 'fall', 3, 3, 3, 3, 3, 3, 0);
+			INSERT INTO reports (review_id, reporter_key, reason) VALUES ('r', 'k1', 'neden'), ('r', 'k2', NULL);
+		`);
+		applyFile(
+			db,
+			files.find((f) => f.startsWith('0006'))!
+		);
+		expect(db.prepare('SELECT COUNT(*) AS n FROM reviews').all()[0].n).toBe(1);
+		expect(db.prepare('SELECT COUNT(*) AS n FROM reports').all()[0].n).toBe(2);
+		expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+		// Boş puan artık kabul edilir, 1-7 dışı değer yine reddedilir
+		db.exec(`INSERT INTO reviews (id, user_id, course_id, instructor_id, academic_year, term, difficulty, created_at)
+			VALUES ('r2', 'u1', 'c', 'i', 2023, 'fall', NULL, 0)`);
+		expect(() =>
+			db.exec(`INSERT INTO reviews (id, user_id, course_id, instructor_id, academic_year, term, difficulty, created_at)
+				VALUES ('r3', 'u1', 'c', 'i', 2022, 'fall', 9, 0)`)
+		).toThrow();
+		// reviews silinince raporları da silinir (yeni yabancı anahtar çalışıyor)
+		db.exec(`DELETE FROM reviews WHERE id = 'r'`);
+		expect(db.prepare('SELECT COUNT(*) AS n FROM reports').all()[0].n).toBe(0);
+	});
 });

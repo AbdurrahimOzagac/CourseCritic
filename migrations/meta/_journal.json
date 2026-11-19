@@ -43,6 +43,13 @@
       "when": 1795077027396,
       "tag": "0005_drop_instructor_title",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1795077951658,
+      "tag": "0006_nullable_ratings",
+      "breakpoints": true
     }
   ]
 }

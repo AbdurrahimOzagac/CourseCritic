@@ -285,5 +285,14 @@
 				"countPlural=*": "{count} reviews"
 			}
 		}
-	]
+	],
+	"confirm_title": "Are you sure?",
+	"confirm_unfilled_intro": "You left these fields empty:",
+	"confirm_send": "Your review will be published as \"Anonymous student\". Do you want to submit it?",
+	"confirm_save": "Your changes will be saved. Do you want to continue?",
+	"confirm_back": "Go back",
+	"confirm_yes": "Yes, submit",
+	"clear_rating": "Clear",
+	"form_ratings_hint": "All ratings are optional; leave out any you do not know or do not want to give. At least one rating or a comment is required.",
+	"error_empty_review": "Please give at least one rating or write a comment."
 }
