@@ -8,6 +8,8 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
+	// Asıl adres. workers.dev adresi de şimdilik açık kalıyor.
+	"routes": [{ "pattern": "derssec.abdurrahimozagac.com", "custom_domain": true }],
 	"workers_dev": true,
 	"preview_urls": true,
 	// IP adresi ve istek kaydı tutmuyoruz (anonimlik). Bkz. PLAN.md
