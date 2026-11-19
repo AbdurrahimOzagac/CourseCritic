@@ -10,13 +10,11 @@
 		curveName,
 		instructorName,
 		kindName,
-		outcomeName,
 		termLabel
 	} from '#lib/i18n.ts';
 	import { m } from '#lib/paraglide/messages.js';
 	import { getLocale } from '#lib/paraglide/runtime.js';
 	import { termKey } from '#lib/terms.ts';
-	import { OUTCOMES } from '#lib/constants.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -223,7 +221,7 @@
 		</div>
 
 		{@const s = data.summary}
-		{#if s.classAverage.n || s.curve.yes + s.curve.no || OUTCOMES.some((o) => s.outcomes[o])}
+		{#if s.classAverage.n || s.curve.yes + s.curve.no}
 			<dl class="mb-6 grid gap-4 card p-4 text-sm sm:grid-cols-3">
 				{#if s.classAverage.average !== null}
 					<div>
@@ -239,16 +237,6 @@
 						<dt class="text-slate-500">{m.field_curve()}</dt>
 						<dd class="font-medium">
 							{curveName('yes')}: {s.curve.yes} · {curveName('no')}: {s.curve.no}
-						</dd>
-					</div>
-				{/if}
-				{#if OUTCOMES.some((o) => s.outcomes[o])}
-					<div>
-						<dt class="text-slate-500">{m.field_outcome()}</dt>
-						<dd class="font-medium">
-							{OUTCOMES.filter((o) => s.outcomes[o])
-								.map((o) => `${outcomeName(o)}: ${s.outcomes[o]}`)
-								.join(' · ')}
 						</dd>
 					</div>
 				{/if}
