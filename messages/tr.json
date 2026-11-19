@@ -121,7 +121,6 @@
 	"field_name_en": "Ders adı (İngilizce)",
 	"field_description_tr": "Açıklama (Türkçe)",
 	"field_description_en": "Açıklama (İngilizce)",
-	"anonymous_student": "Anonim öğrenci",
 	"review_edited": "düzenlendi",
 	"edit": "Düzenle",
 	"delete": "Sil",
@@ -276,5 +275,6 @@
 	"confirm_yes": "Evet, gönder",
 	"clear_rating": "Temizle",
 	"form_ratings_hint": "Puanların hepsi isteğe bağlı; bilmediğiniz ya da vermek istemediğiniz puanları boş bırakabilirsiniz. En az bir puan ya da yorum gerekir.",
-	"error_empty_review": "Lütfen en az bir puan verin ya da yorum yazın."
+	"error_empty_review": "Lütfen en az bir puan verin ya da yorum yazın.",
+	"reviews_anonymous_note": "Tüm değerlendirmeler anonimdir."
 }

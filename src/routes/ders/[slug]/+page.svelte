@@ -260,8 +260,13 @@
 <!-- Değerlendirmeler -->
 {#if data.reviews.length}
 	<section>
-		<h2 class="mb-3 text-lg font-semibold text-brand-900">{m.reviews()}</h2>
-		<div class="flex flex-col gap-3">
+		<div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+			<h2 class="text-lg font-semibold text-brand-900">
+				{m.reviews()} <span class="font-normal text-slate-400">({data.reviews.length})</span>
+			</h2>
+			<p class="text-sm text-slate-500">{m.reviews_anonymous_note()}</p>
+		</div>
+		<div class="flex flex-col gap-4">
 			{#each data.reviews as review (review.id)}
 				<ReviewCard {review} courseSlug={course.slug} loggedIn={!!page.data.user} />
 			{/each}

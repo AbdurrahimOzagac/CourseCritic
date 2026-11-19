@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { CRITERIA } from '#lib/constants.ts';
+	import { COURSE_CRITERIA, INSTRUCTOR_CRITERIA } from '#lib/constants.ts';
 	import {
 		criterionName,
 		curveName,
@@ -27,65 +27,96 @@
 	let reporting = $state(false);
 	let reported = $state(false);
 
-	const meta = $derived(
+	// Kartın üstünde küçük rozetler: kaç kez alındığı, sonuç, sınıf ortalaması, çan
+	const chips = $derived(
 		[
 			review.attempts ? m.review_attempts({ count: review.attempts }) : null,
-			review.outcome ? outcomeName(review.outcome) : null
+			review.outcome ? outcomeName(review.outcome) : null,
+			review.classAverage !== null ? `${m.field_class_average()}: ~${review.classAverage}` : null,
+			review.curve ? `${m.field_curve()} ${curveName(review.curve)}` : null
+		].filter((c): c is string => !!c)
+	);
+
+	// Puanlar iki grupta; hiç puanı olmayan grup gösterilmez
+	const groups = $derived(
+		[
+			{ title: m.section_course(), criteria: COURSE_CRITERIA },
+			{ title: m.section_instructor(), criteria: INSTRUCTOR_CRITERIA }
 		]
-			.filter(Boolean)
-			.join(', ')
+			.map((g) => ({ ...g, rated: g.criteria.filter((c) => review[c] !== null) }))
+			.filter((g) => g.rated.length)
 	);
 </script>
 
-<article class="card p-4">
-	<header
-		class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 pb-2"
-	>
-		<div class="text-sm">
-			<span class="font-semibold text-slate-800">{m.anonymous_student()}</span>
-			<span class="text-slate-400"> · </span>
-			<span class="text-slate-700">{termLabel(review.academicYear, review.term)}</span>
-			{#if showInstructor}
-				<span class="text-slate-400"> · </span>
-				<a href="/hoca/{review.instructor.slug}" class="text-slate-700"
-					>{instructorName(review.instructor)}</a
+<article class="overflow-hidden card">
+	<div class="p-5">
+		<header class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+			<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+				<span
+					class="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-100 ring-inset"
+					>{termLabel(review.academicYear, review.term)}</span
 				>
-			{/if}
-			{#if meta}<span class="text-slate-400"> · </span><span class="text-slate-600">{meta}</span
-				>{/if}
-		</div>
-		{#if review.edited}<span class="text-xs text-slate-400">{m.review_edited()}</span>{/if}
-	</header>
+				{#if showInstructor}
+					<a href="/hoca/{review.instructor.slug}" class="font-medium text-slate-800"
+						>{instructorName(review.instructor)}</a
+					>
+				{/if}
+			</div>
+			{#if review.edited}<span class="text-xs text-slate-400">{m.review_edited()}</span>{/if}
+		</header>
 
-	<dl class="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
-		{#each CRITERIA as c (c)}
-			{@const level = review[c]}
-			{#if level !== null}
-				<div class="flex justify-between gap-2">
-					<dt class="text-slate-500">{criterionName(c)}</dt>
-					<dd class="font-medium text-slate-800">{scaleLabel(c, level)}</dd>
-				</div>
-			{/if}
-		{/each}
-		{#if review.classAverage !== null}
-			<div class="flex justify-between gap-2">
-				<dt class="text-slate-500">{m.field_class_average()}</dt>
-				<dd class="font-medium text-slate-800">~{review.classAverage}</dd>
+		{#if chips.length}
+			<ul class="mt-3 flex flex-wrap gap-1.5">
+				{#each chips as chip (chip)}
+					<li class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{chip}</li>
+				{/each}
+			</ul>
+		{/if}
+
+		{#if groups.length}
+			<div class="mt-5 grid gap-x-10 gap-y-5 md:grid-cols-2">
+				{#each groups as g (g.title)}
+					<section>
+						<h3 class="mb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+							{g.title}
+						</h3>
+						<dl class="flex flex-col gap-3">
+							{#each g.rated as c (c)}
+								{@const level = review[c] as number}
+								<div>
+									<div class="flex items-baseline justify-between gap-3 text-sm">
+										<dt class="text-slate-500">{criterionName(c)}</dt>
+										<dd class="font-medium text-slate-800">{scaleLabel(c, level)}</dd>
+									</div>
+									<div class="mt-1 flex gap-0.5" aria-hidden="true">
+										{#each [1, 2, 3, 4, 5, 6, 7] as n (n)}
+											<span
+												class="h-1.5 flex-1 rounded-full {n <= level
+													? 'bg-brand-600'
+													: 'bg-slate-200'}"
+											></span>
+										{/each}
+									</div>
+								</div>
+							{/each}
+						</dl>
+					</section>
+				{/each}
 			</div>
 		{/if}
-		{#if review.curve}
-			<div class="flex justify-between gap-2">
-				<dt class="text-slate-500">{m.field_curve()}</dt>
-				<dd class="font-medium text-slate-800">{curveName(review.curve)}</dd>
-			</div>
+
+		{#if review.comment}
+			<blockquote
+				class="mt-5 border-l-4 border-brand-200 pl-4 leading-relaxed whitespace-pre-line text-slate-800"
+			>
+				{review.comment}
+			</blockquote>
 		{/if}
-	</dl>
+	</div>
 
-	{#if review.comment}
-		<p class="mt-3 whitespace-pre-line text-slate-800">{review.comment}</p>
-	{/if}
-
-	<footer class="mt-3 flex flex-wrap items-center justify-end gap-3 text-xs">
+	<footer
+		class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 bg-slate-50 px-5 py-2 text-xs"
+	>
 		{#if review.isMine}
 			<a href="/ders/{courseSlug}/degerlendir?id={review.id}">{m.edit()}</a>
 			<form

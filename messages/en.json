@@ -121,7 +121,6 @@
 	"field_name_en": "Course name (English)",
 	"field_description_tr": "Description (Turkish)",
 	"field_description_en": "Description (English)",
-	"anonymous_student": "Anonymous student",
 	"review_edited": "edited",
 	"edit": "Edit",
 	"delete": "Delete",
@@ -294,5 +293,6 @@
 	"confirm_yes": "Yes, submit",
 	"clear_rating": "Clear",
 	"form_ratings_hint": "All ratings are optional; leave out any you do not know or do not want to give. At least one rating or a comment is required.",
-	"error_empty_review": "Please give at least one rating or write a comment."
+	"error_empty_review": "Please give at least one rating or write a comment.",
+	"reviews_anonymous_note": "All reviews are anonymous."
 }
