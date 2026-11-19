@@ -26,7 +26,7 @@
 		{m.course_adds_exhausted({ limit: data.courseAdds?.limit ?? 0 })}
 	</p>
 {:else}
-	{#if data.courseAdds && data.courseAdds.used > 0}
+	{#if data.courseAdds?.warn}
 		<p class="mb-4 text-sm text-slate-600">
 			{m.course_adds_remaining({
 				used: data.courseAdds.used,

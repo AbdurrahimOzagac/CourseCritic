@@ -17,7 +17,10 @@ async function limitKey(secret: string, kind: AddKind, userEmailHash: string, pe
 	return hmac(secret, `limit:${kind}:${userEmailHash}:${period}`);
 }
 
-export type AddAllowance = { used: number; limit: number; remaining: number };
+/** Kalan hak bu sayıya inince formda uyarı gösterilir; o zamana kadar sayaç görünmez. */
+const WARN_WHEN_REMAINING: Record<AddKind, number> = { instructor: 10, course: 20 };
+
+export type AddAllowance = { used: number; limit: number; remaining: number; warn: boolean };
 
 /** Kullanıcının bu dönem kaç ekleme yaptığı ve kaç hakkı kaldığı (formda uyarı göstermek için). */
 export async function addAllowance(
@@ -33,7 +36,8 @@ export async function addAllowance(
 	});
 	const used = row?.count ?? 0;
 	const limit = ADD_LIMITS[kind];
-	return { used, limit, remaining: Math.max(0, limit - used) };
+	const remaining = Math.max(0, limit - used);
+	return { used, limit, remaining, warn: remaining <= WARN_WHEN_REMAINING[kind] };
 }
 
 /**

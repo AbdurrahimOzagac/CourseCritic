@@ -217,7 +217,7 @@
 					<p class="text-sm font-medium text-red-700 sm:col-span-2">
 						{m.instructor_adds_exhausted({ limit: data.instructorAdds.limit })}
 					</p>
-				{:else if data.instructorAdds.used > 0}
+				{:else if data.instructorAdds.warn}
 					<p class="text-sm text-slate-600 sm:col-span-2">
 						{m.instructor_adds_remaining({
 							used: data.instructorAdds.used,
