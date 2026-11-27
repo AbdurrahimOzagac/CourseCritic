@@ -4,7 +4,6 @@
 	"site_scope": "Hacettepe University",
 	"footer_tagline": "Course reviews by students, for students",
 	"language": "Language",
-	"nav_courses": "Courses",
 	"nav_account": "My account",
 	"nav_admin": "Admin",
 	"nav_login": "Sign in",
@@ -303,13 +302,40 @@
 	"instructor_adds_exhausted": "You added {limit} new instructors this month and cannot add more. The limit resets at the start of the month. The instructor may already be listed; try searching by name.",
 	"course_adds_remaining": "You have added {used} courses so far. {remaining} left.",
 	"course_adds_exhausted": "An account can add at most {limit} courses. You have reached that limit.",
-	"filter_department": "Department",
-	"all_departments": "All departments",
 	"field_department": "Department",
 	"field_department_hint": "The department that teaches the course. Common courses (Turkish, English etc.) and SEC courses are under Rectorate.",
 	"department_courses_empty": "No courses have been added for this department yet. You can start by adding the courses you took.",
 	"delete_course": "Delete course",
 	"delete_course_confirm": "This course will be deleted permanently. Are you sure?",
 	"delete_course_has_reviews": "This course has reviews and cannot be deleted. Correct its details instead.",
-	"delete_course_hint": "For courses added by mistake or made up. Only courses without reviews can be deleted."
+	"delete_course_hint": "For courses added by mistake or made up. Only courses without reviews can be deleted.",
+	"nav_departments": "Departments",
+	"pick_title": "Which department's courses would you like to see?",
+	"pick_intro": "Choose a faculty, then a department. To find a course or an instructor directly, use the search bar at the top.",
+	"last_department": "Last department you viewed",
+	"pick_faculty": "Faculty",
+	"pick_department": "Department",
+	"course_count": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "{count} course",
+				"countPlural=*": "{count} courses"
+			}
+		}
+	],
+	"no_courses_short": "No courses yet",
+	"department_count": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "{count} department",
+				"countPlural=*": "{count} departments"
+			}
+		}
+	],
+	"other_courses": "Courses outside departments",
+	"other_courses_hint": "Common compulsory courses taken by every department, and university electives (SEC)."
 }

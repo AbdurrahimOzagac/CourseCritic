@@ -112,7 +112,8 @@
 </svelte:head>
 
 <nav class="mb-4 text-sm text-slate-500">
-	<a href="/">{m.nav_courses()}</a> / <a href="/ders/{data.course.slug}">{data.course.code}</a> /
+	<a href="/">{m.nav_departments()}</a> / <a href="/ders/{data.course.slug}">{data.course.code}</a>
+	/
 	{e ? m.edit_review() : m.write_review()}
 </nav>
 

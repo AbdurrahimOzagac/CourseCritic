@@ -49,7 +49,7 @@
 			</form>
 
 			<nav class="ml-auto flex items-center gap-4 text-sm">
-				<a href="/">{m.nav_courses()}</a>
+				<a href="/">{m.nav_departments()}</a>
 				{#if data.user}
 					<a href="/hesabim">{m.nav_account()}</a>
 					{#if data.user.role === 'admin'}

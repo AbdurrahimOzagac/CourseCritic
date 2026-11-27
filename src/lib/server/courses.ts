@@ -42,7 +42,8 @@ export async function listDepartments(db: Db): Promise<DepartmentItem[]> {
 			nameEn: departments.nameEn,
 			facultyTr: departments.facultyTr,
 			facultyEn: departments.facultyEn,
-			courseCount: sql<number>`(SELECT COUNT(*) FROM courses c WHERE c.department_id = ${departments.id})`
+			// Tablo adı açık yazılır: Drizzle alt sorguda sütunu tablosuz ("id") yazar, o da courses.id'ye bağlanır
+			courseCount: sql<number>`(SELECT COUNT(*) FROM courses c WHERE c.department_id = "departments"."id")`
 		})
 		.from(departments)
 		.orderBy(asc(departments.facultyTr), asc(departments.nameTr));

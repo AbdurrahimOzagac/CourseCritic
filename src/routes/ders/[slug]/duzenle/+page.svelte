@@ -12,7 +12,7 @@
 </svelte:head>
 
 <nav class="mb-4 text-sm text-slate-500">
-	<a href="/">{m.nav_courses()}</a> / <a href="/ders/{data.slug}">{data.fields.code}</a> / {m.edit()}
+	<a href="/">{m.nav_departments()}</a> / <a href="/ders/{data.slug}">{data.fields.code}</a> / {m.edit()}
 </nav>
 <h1 class="mb-2 text-2xl font-semibold text-brand-900">
 	{data.isAdmin ? m.edit_course() : m.suggest_course_edit()}

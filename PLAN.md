@@ -33,7 +33,7 @@ Yapı her ders için aynıdır. Tek hocalı dersler için ayrı bir davranış y
 
 ## Sayfalar
 
-- **Ana sayfa:** Arama çubuğu ve ders tablosu.
+- **Ana sayfa:** Fakülte → bölüm seçimi. **Bölüm sayfası:** ders tablosu (listede arama, sınıf ve tür süzgeci).
 - **Ders sayfası:** Genel puanlar, hocalar, değerlendirmeler.
 - **Hoca sayfası:** Sadece "Verdiği dersler" listesi. **Puan ve yorum yoktur.** Listedeki dersler ilgili ders sayfasına götürür.
 - **Arama:** Her sayfada bulunur. Ders kodu, ders adı (TR/EN) ve hoca adında arar. Türkçe karakterden bağımsızdır ("dagitik" → "Dağıtık").
@@ -139,8 +139,12 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
   → "Yapay Zeka ve Veri Mühendisliği").
 - Bölüm dışı iki birim: **Üniversite Seçmeli Dersleri (SEC)** ve **Ortak Zorunlu Dersler** (TKD, AİT, İNG, BEB, MÜH, TRK).
   Servis dersleri dersi veren bölümün altındadır (MAT → Matematik, FİZ → Fizik Müh., İST → İstatistik).
-- Ana sayfada bölüm seçilir (`/?bolum=matematik`). Seçim tarayıcıda hatırlanır, **hesaba yazılmaz** (anonimlik). Seçim
-  yoksa tüm dersler görünür. Öğrenci her bölümün dersini değerlendirebilir.
+- Ana sayfa bir seçim ekranıdır: önce **fakülte**, sonra aynı sayfada **bölüm** seçilir (`/?fakulte=…`). Dersler hemen
+  görünmez; her bölümün kendi sayfası vardır (`/bolum/matematik`), "Listede ara" ve sınıf/tür süzgeçleri oradadır.
+- Ortak zorunlu dersler ve SEC dersleri fakülte listesinin altında "Bölüm dışı dersler" başlığındadır.
+- Tüm derslerde ve hocalarda genel arama üstteki arama çubuğuyla yapılır (eski BBM kodlarıyla aramak da buradan).
+- Son bakılan bölüm tarayıcıda hatırlanır ve ana sayfada kısayol olarak çıkar, **hesaba yazılmaz** (anonimlik).
+  Öğrenci her bölümün dersini değerlendirebilir.
 - Dersleri admin'in girdiği bölümler: Bilgisayar Müh. (CMP), Yapay Zeka ve Veri Müh. (AID), Elektrik-Elektronik Müh.
   (ELE), Matematik (MTK + MAT servis dersleri), bu programlardaki ortak dersler ve 268 SEC dersi (hocalarıyla).
   Diğer bölümlerin derslerini öğrenciler ekler.

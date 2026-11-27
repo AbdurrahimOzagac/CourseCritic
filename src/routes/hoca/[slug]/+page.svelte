@@ -12,7 +12,9 @@
 	<title>{name} · {m.site_name()}</title>
 </svelte:head>
 
-<nav class="mb-4 text-sm text-slate-500"><a href="/">{m.nav_courses()}</a> / {m.instructor()}</nav>
+<nav class="mb-4 text-sm text-slate-500">
+	<a href="/">{m.nav_departments()}</a> / {m.instructor()}
+</nav>
 
 <h1 class="mb-1 text-3xl font-semibold text-brand-900">{name}</h1>
 <p class="mb-8 text-sm text-slate-500">{m.instructor_page_note()}</p>

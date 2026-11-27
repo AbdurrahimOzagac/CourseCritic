@@ -23,7 +23,8 @@ tüm bölümleri. Katalog `seed/*.csv` → `scripts/make-catalog-sql.py`.
 - Bildirimler kişiyi `reporterKey(secret, reviewId, emailHash)` ile tanır, `user_id` ile değil (hesap silinince
   `user_id` boşalır, bildirim sayılmaya devam eder). Gizleme kararı `dismissed = 0` bildirimler sayılarak verilir.
 - Kullanıcı silmek için `deleteUser` / `banUser` kullan.
-- Bölüm seçimi adreste (`?bolum=`) ve tarayıcıda (localStorage) tutulur; hesaba ya da sunucuya kullanıcıyla bağlı yazılmaz.
+- Ana sayfa fakülte → bölüm seçimi (`/?fakulte=`), dersler bölüm sayfasında (`/bolum/[kod]`). Son bakılan bölüm sadece
+  tarayıcıda (localStorage) tutulur; hesaba ya da sunucuya kullanıcıyla bağlı yazılmaz.
 - Öğrencinin eklediği ders (`createCourse`) ekleyene bağlanmaz.
 - Öğrencinin eklediği hoca `addInstructorForStudent` ile "beklemede" açılır; farklı 2 öğrenci kullanınca `confirmInstructorIfUsed`
   onaylar. Ekleme sınırları (`limits.ts`: ayda 30 hoca, hesap başına 120 ders) `add_limits` sayacında; kullanıcıya bağlanmaz.

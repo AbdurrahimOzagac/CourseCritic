@@ -13,5 +13,5 @@
 	{#if page.status !== 404 && page.error?.message}<p class="mt-2 text-sm text-slate-500">
 			{page.error.message}
 		</p>{/if}
-	<a href="/" class="mt-6 btn btn-primary">{m.nav_courses()}</a>
+	<a href="/" class="mt-6 btn btn-primary">{m.nav_departments()}</a>
 </div>

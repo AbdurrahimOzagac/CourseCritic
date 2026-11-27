@@ -91,7 +91,7 @@ export const sessions = sqliteTable(
 
 /**
  * Üniversitenin bölümleri (ve SEC / ortak dersler gibi bölüm dışı birimler). Liste seed/departments.hacettepe.csv'den
- * gelir. `code` URL'de kullanılır (`/?bolum=matematik`). Öğrenci bölüm seçimini tarayıcıda saklar, hesaba bağlanmaz.
+ * gelir. `code` URL'de kullanılır (`/bolum/matematik`). Öğrenci bölüm seçimini tarayıcıda saklar, hesaba bağlanmaz.
  */
 export const departments = sqliteTable('departments', {
 	id: id(),

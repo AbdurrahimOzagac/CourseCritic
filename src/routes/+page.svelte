@@ -1,233 +1,122 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import DepartmentSelect from '#lib/components/DepartmentSelect.svelte';
-	import { MIN_REVIEWS_FOR_SUMMARY } from '#lib/constants.ts';
-	import { courseName, instructorName, kindName, scaleLabel } from '#lib/i18n.ts';
+	import { onMount, tick } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
+	import { page } from '$app/state';
+	import { departmentName, facultyName } from '#lib/i18n.ts';
+	import { groupByFaculty, LAST_DEPARTMENT_KEY } from '#lib/departments.ts';
 	import { m } from '#lib/paraglide/messages.js';
-	import { matchesQuery } from '#lib/text.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	type SortKey = 'code' | 'difficulty' | 'workload' | 'teachingValue' | 'reviewCount';
+	const groups = $derived(groupByFaculty(data.departments, departmentName, facultyName));
+	const selectedKey = $derived(page.url.searchParams.get('fakulte') ?? '');
+	const selected = $derived(groups.faculties.find((f) => f.key === selectedKey) ?? null);
 
-	let query = $state('');
-	let yearLevel = $state('');
-	let kind = $state('');
-	let sortKey = $state<SortKey>('code');
-	let sortDesc = $state(false);
-
-	// Bölüm seçimi: adreste (?bolum=) ve bu tarayıcıda hatırlanır. Hesaba yazılmaz.
-	const DEPARTMENT_KEY = 'derssec:bolum';
-	// svelte-ignore state_referenced_locally
-	let department = $state(data.department ?? '');
-	$effect(() => {
-		department = data.department ?? '';
-	});
-
-	function selectDepartment(code: string) {
-		try {
-			localStorage.setItem(DEPARTMENT_KEY, code);
-		} catch {
-			// Tarayıcı depolaması kapalıysa seçim sadece adreste kalır
-		}
-		yearLevel = '';
-		kind = '';
-		goto(code ? `/?bolum=${encodeURIComponent(code)}` : '/', { reset: false });
-	}
-
+	// "Son baktığın bölüm" kısayolu: bölüm sayfası bu tarayıcıya yazar, sunucuya gitmez
+	let lastDepartment = $state<(typeof data.departments)[number] | null>(null);
 	onMount(() => {
-		if (new URL(location.href).searchParams.has('bolum')) return;
-		let saved = '';
 		try {
-			saved = localStorage.getItem(DEPARTMENT_KEY) ?? '';
+			const code = localStorage.getItem(LAST_DEPARTMENT_KEY);
+			lastDepartment = data.departments.find((d) => d.code === code) ?? null;
 		} catch {
-			return;
-		}
-		if (saved && data.departments.some((d) => d.code === saved)) {
-			goto(`/?bolum=${encodeURIComponent(saved)}`, { replace: true, reset: false });
+			// Tarayıcı depolaması kapalıysa kısayol gösterilmez
 		}
 	});
 
-	const levels = $derived(
-		[...new Set(data.courses.map((c) => c.yearLevel).filter((l): l is number => l !== null))].sort()
-	);
-
-	const rows = $derived.by(() => {
-		const filtered = data.courses.filter(
-			(c) =>
-				(!yearLevel || String(c.yearLevel) === yearLevel) &&
-				(!kind || c.kind === kind) &&
-				matchesQuery(query, c.code, c.nameTr, c.nameEn, ...c.instructors.map((i) => i.name))
-		);
-		const dir = sortDesc ? -1 : 1;
-		return filtered.sort((a, b) => {
-			if (sortKey === 'code') return a.code.localeCompare(b.code, 'tr') * dir;
-			const hasA = a.reviewCount >= MIN_REVIEWS_FOR_SUMMARY || sortKey === 'reviewCount';
-			const hasB = b.reviewCount >= MIN_REVIEWS_FOR_SUMMARY || sortKey === 'reviewCount';
-			// Yeterli değerlendirmesi olmayanlar her zaman sonda
-			if (hasA !== hasB) return hasA ? -1 : 1;
-			const va = (a[sortKey] as number | null) ?? 0;
-			const vb = (b[sortKey] as number | null) ?? 0;
-			return (va - vb) * dir || a.code.localeCompare(b.code, 'tr');
-		});
+	// Fakülte seçilince bölüm listesi görünür alanda değilse (ör. telefonda) oraya kaydırılır
+	let departmentsEl = $state<HTMLElement>();
+	afterNavigate(async ({ type }) => {
+		if (type !== 'link' || !selectedKey) return;
+		await tick();
+		const top = departmentsEl?.getBoundingClientRect().top ?? 0;
+		if (top > innerHeight * 0.6)
+			departmentsEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	});
 
-	function sortBy(key: SortKey) {
-		if (sortKey === key) sortDesc = !sortDesc;
-		else {
-			sortKey = key;
-			sortDesc = key === 'reviewCount';
-		}
-	}
-
-	const columns: { key: SortKey; label: () => string; className?: string }[] = [
-		{ key: 'difficulty', label: m.criterion_difficulty },
-		{ key: 'workload', label: m.criterion_workload },
-		{ key: 'teachingValue', label: m.criterion_teachingValue },
-		{ key: 'reviewCount', label: m.col_reviews, className: 'text-right' }
-	];
+	const courseCount = (n: number) => (n ? m.course_count({ count: n }) : m.no_courses_short());
 </script>
 
 <svelte:head>
-	<title>{m.home_title()} · {m.site_name()}</title>
+	<title>{m.site_name()} · {m.site_scope()}</title>
 </svelte:head>
 
-<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
-	<div>
-		<h1 class="text-2xl font-semibold text-brand-900">{m.home_title()}</h1>
-		<p class="mt-1 max-w-2xl text-slate-600">{m.home_intro()}</p>
-	</div>
-	<a href="/ders/oner{department ? `?bolum=${department}` : ''}" class="text-sm"
-		>{m.suggest_course_link()}</a
-	>
+<div class="mb-6">
+	<h1 class="text-2xl font-semibold text-brand-900">{m.pick_title()}</h1>
+	<p class="mt-1 max-w-2xl text-slate-600">{m.pick_intro()}</p>
+	{#if lastDepartment}
+		<p class="mt-3 text-sm">
+			<span class="text-slate-500">{m.last_department()}:</span>
+			<a href="/bolum/{lastDepartment.code}" class="font-medium"
+				>{departmentName(lastDepartment)} →</a
+			>
+		</p>
+	{/if}
 </div>
 
-<div class="mb-4 flex flex-wrap items-end gap-3 card p-3">
-	<div class="w-full sm:w-72">
-		<label class="label" for="filter-department">{m.filter_department()}</label>
-		<DepartmentSelect
-			id="filter-department"
-			departments={data.departments}
-			bind:value={department}
-			emptyLabel={m.all_departments()}
-			onchange={selectDepartment}
-		/>
+<section class="mb-8">
+	<h2 class="mb-3 text-sm font-semibold text-slate-500">
+		1. {m.pick_faculty()}
+	</h2>
+	<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+		{#each groups.faculties as f (f.key)}
+			{@const active = f.key === selectedKey}
+			<a
+				href={active ? '/' : `/?fakulte=${f.key}`}
+				data-sveltekit-noscroll
+				data-sveltekit-replacestate
+				aria-current={active ? 'true' : undefined}
+				class="flex items-center justify-between gap-3 card px-4 py-3 no-underline hover:border-brand-700 {active
+					? 'border-brand-800 bg-brand-50 ring-1 ring-brand-800'
+					: ''}"
+			>
+				<span class="font-medium text-slate-900">{facultyName(f.departments[0])}</span>
+				<span class="shrink-0 text-xs text-slate-500"
+					>{m.department_count({ count: f.departments.length })}</span
+				>
+			</a>
+		{/each}
 	</div>
-	<div class="min-w-48 flex-1">
-		<label class="label" for="filter-q">{m.filter_search()}</label>
-		<input
-			id="filter-q"
-			type="search"
-			bind:value={query}
-			placeholder={m.filter_search_placeholder()}
-			class="w-full"
-		/>
-	</div>
-	<div>
-		<label class="label" for="filter-level">{m.filter_year_level()}</label>
-		<select id="filter-level" bind:value={yearLevel}>
-			<option value="">{m.all()}</option>
-			{#each levels as l (l)}
-				<option value={String(l)}>{m.year_level({ level: l })}</option>
-			{/each}
-		</select>
-	</div>
-	<div>
-		<label class="label" for="filter-kind">{m.filter_kind()}</label>
-		<select id="filter-kind" bind:value={kind}>
-			<option value="">{m.all()}</option>
-			<option value="compulsory">{kindName('compulsory')}</option>
-			<option value="elective">{kindName('elective')}</option>
-		</select>
-	</div>
-</div>
+</section>
 
-<div class="overflow-x-auto card">
-	<table class="data-table">
-		<thead>
-			<tr>
-				<th>
-					<button type="button" onclick={() => sortBy('code')} class="font-semibold">
-						{m.col_course()}{sortKey === 'code' ? (sortDesc ? ' ↓' : ' ↑') : ''}
-					</button>
-				</th>
-				<th>{m.col_instructors()}</th>
-				{#each columns as col (col.key)}
-					<th class={col.className}>
-						<button
-							type="button"
-							onclick={() => sortBy(col.key)}
-							class="font-semibold whitespace-nowrap"
-						>
-							{col.label()}{sortKey === col.key ? (sortDesc ? ' ↓' : ' ↑') : ''}
-						</button>
-					</th>
-				{/each}
-			</tr>
-		</thead>
-		<tbody>
-			{#each rows as c (c.id)}
-				<tr>
-					<td class="min-w-56">
-						<a href="/ders/{c.slug}" class="font-medium">
-							<span class="text-slate-500 tabular-nums">{c.code}</span>
-							{courseName(c)}
-						</a>
-						{#if c.kind || c.yearLevel}
-							<div class="mt-0.5 text-xs text-slate-500">
-								{[
-									c.yearLevel ? m.year_level({ level: c.yearLevel }) : null,
-									c.kind ? kindName(c.kind) : null
-								]
-									.filter(Boolean)
-									.join(' · ')}
-							</div>
-						{/if}
-					</td>
-					<td class="min-w-40">
-						{#each c.instructors as i (i.id)}
-							<div>
-								<a href="/ders/{c.slug}?hoca={i.slug}" class="text-slate-700">{instructorName(i)}</a
-								>
-							</div>
-						{:else}
-							<span class="text-slate-400">–</span>
-						{/each}
-					</td>
-					{#if c.reviewCount >= MIN_REVIEWS_FOR_SUMMARY}
-						<!-- Puanlar isteğe bağlı: bir kriter için hiç puan yoksa "–" -->
-						<td
-							>{c.difficulty === null
-								? '–'
-								: scaleLabel('difficulty', Math.round(c.difficulty))}</td
-						>
-						<td>{c.workload === null ? '–' : scaleLabel('workload', Math.round(c.workload))}</td>
-						<td>
-							{c.teachingValue === null
-								? '–'
-								: scaleLabel('teachingValue', Math.round(c.teachingValue))}
-						</td>
-					{:else}
-						<td colspan="3" class="text-slate-400 italic">
-							{c.reviewCount ? m.not_enough_reviews({ count: c.reviewCount }) : m.no_reviews_yet()}
-						</td>
-					{/if}
-					<td class="text-right tabular-nums">{c.reviewCount}</td>
-				</tr>
-			{:else}
-				<tr>
-					<td colspan="6" class="py-8 text-center text-slate-500">
-						{#if department && !data.courses.length}
-							{m.department_courses_empty()}
-							<a href="/ders/oner?bolum={department}" class="ml-1">{m.add_course()}</a>
-						{:else}
-							{m.no_courses_found()}
-						{/if}
-					</td>
-				</tr>
+{#if selected}
+	<section class="mb-8 scroll-mt-4" aria-live="polite" bind:this={departmentsEl}>
+		<h2 class="mb-3 text-sm font-semibold text-slate-500">
+			2. {m.pick_department()} · {facultyName(selected.departments[0])}
+		</h2>
+		<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+			{#each selected.departments as d (d.code)}
+				<a
+					href="/bolum/{d.code}"
+					class="flex items-center justify-between gap-3 card px-4 py-3 no-underline hover:border-brand-700"
+				>
+					<span class="font-medium text-brand-900">{departmentName(d)}</span>
+					<span
+						class="shrink-0 text-xs {d.courseCount ? 'text-slate-500' : 'text-slate-400 italic'}"
+						>{courseCount(d.courseCount)}</span
+					>
+				</a>
 			{/each}
-		</tbody>
-	</table>
-</div>
+		</div>
+	</section>
+{/if}
+
+{#if groups.other.length}
+	<section>
+		<h2 class="mb-1 text-sm font-semibold text-slate-500">
+			{m.other_courses()}
+		</h2>
+		<p class="mb-3 text-sm text-slate-500">{m.other_courses_hint()}</p>
+		<div class="grid gap-2 sm:grid-cols-2">
+			{#each groups.other as d (d.code)}
+				<a
+					href="/bolum/{d.code}"
+					class="flex items-center justify-between gap-3 card px-4 py-3 no-underline hover:border-brand-700"
+				>
+					<span class="font-medium text-brand-900">{departmentName(d)}</span>
+					<span class="shrink-0 text-xs text-slate-500">{courseCount(d.courseCount)}</span>
+				</a>
+			{/each}
+		</div>
+	</section>
+{/if}

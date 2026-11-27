@@ -54,9 +54,9 @@
 </svelte:head>
 
 <nav class="mb-4 text-sm text-slate-500">
-	<a href="/">{m.nav_courses()}</a> /
+	<a href="/">{m.nav_departments()}</a> /
 	{#if data.department}
-		<a href="/?bolum={data.department.code}">{departmentName(data.department)}</a> /
+		<a href="/bolum/{data.department.code}">{departmentName(data.department)}</a> /
 	{/if}
 	{course.code}
 </nav>
