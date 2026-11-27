@@ -54,19 +54,23 @@ async function courseInstructorPairs(
 	`);
 }
 
-export async function listCourses(db: Db): Promise<CourseListItem[]> {
+/** Dersler; `departmentId` verilirse sadece o bölümün dersleri. */
+export async function listCourses(db: Db, departmentId?: string): Promise<CourseListItem[]> {
 	const rows = await db.all<Omit<CourseListItem, 'instructors'>>(sql`
 		SELECT c.id, c.code, c.slug, c.name_tr AS nameTr, c.name_en AS nameEn, c.year_level AS yearLevel, c.kind,
 			COUNT(r.id) AS reviewCount,
 			AVG(r.difficulty) AS difficulty, AVG(r.workload) AS workload, AVG(r.teaching_value) AS teachingValue
 		FROM courses c
 		LEFT JOIN reviews r ON r.course_id = c.id AND ${VISIBLE}
+		${departmentId ? sql`WHERE c.department_id = ${departmentId}` : sql``}
 		GROUP BY c.id
 		ORDER BY c.code
 	`);
+	const ids = new Set(rows.map((r) => r.id));
 	const pairs = await courseInstructorPairs(db);
 	const byCourse = new Map<string, InstructorRef[]>();
 	for (const { courseId, ...i } of pairs) {
+		if (!ids.has(courseId)) continue;
 		if (!byCourse.has(courseId)) byCourse.set(courseId, []);
 		byCourse.get(courseId)!.push(i);
 	}

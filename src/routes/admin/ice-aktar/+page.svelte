@@ -10,8 +10,9 @@
 			action: 'courses',
 			title: m.admin_import_courses,
 			header:
-				'code,name_tr,name_en,credits,ects,year_level,kind,prerequisites,description_tr,description_en',
-			example: 'BBM 342,İşletim Sistemleri,Operating Systems,3,6,3,zorunlu,BBM 201,,'
+				'department,code,name_tr,name_en,credits,ects,year_level,kind,prerequisites,description_tr,description_en',
+			example:
+				'bilgisayar-muhendisligi,CMP 332,İşletim Sistemleri,Operating Systems,3,5,3,zorunlu,CMP 201,,'
 		},
 		{
 			action: 'instructors',

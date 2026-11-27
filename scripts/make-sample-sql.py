@@ -27,8 +27,8 @@ def uid(name):
 
 out = ['-- Otomatik üretildi: scripts/make-sample-sql.py. SADECE yerel geliştirme için örnek veri.', 'PRAGMA foreign_keys = ON;']
 dep = uid('dep')
-out.append(f"INSERT OR IGNORE INTO departments (id, code, university, name_tr, name_en) VALUES ({q(dep)}, 'HU-BBM', 'Hacettepe Üniversitesi', 'Bilgisayar Mühendisliği', 'Computer Engineering');")
-dep_sel = "(SELECT id FROM departments WHERE code = 'HU-BBM')"
+out.append(f"INSERT OR IGNORE INTO departments (id, code, university, name_tr, name_en) VALUES ({q(dep)}, 'bilgisayar-muhendisligi', 'Hacettepe Üniversitesi', 'Bilgisayar Mühendisliği', 'Computer Engineering');")
+dep_sel = "(SELECT id FROM departments WHERE code = 'bilgisayar-muhendisligi')"
 
 courses = list(csv.DictReader(open('seed/courses.sample.csv', encoding='utf-8')))
 kinds = {'zorunlu': 'compulsory', 'seçmeli': 'elective'}

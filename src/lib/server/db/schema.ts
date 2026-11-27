@@ -89,13 +89,18 @@ export const sessions = sqliteTable(
 // Dersler ve hocalar
 // ---------------------------------------------------------------------------
 
-/** Üniversiteler arası büyümeye hazırlık. Şimdilik tek kayıt: Hacettepe BBM. */
+/**
+ * Üniversitenin bölümleri (ve SEC / ortak dersler gibi bölüm dışı birimler). Liste seed/departments.hacettepe.csv'den
+ * gelir. `code` URL'de kullanılır (`/?bolum=matematik`). Öğrenci bölüm seçimini tarayıcıda saklar, hesaba bağlanmaz.
+ */
 export const departments = sqliteTable('departments', {
 	id: id(),
 	code: text('code').notNull().unique(),
 	university: text('university').notNull(),
 	nameTr: text('name_tr').notNull(),
-	nameEn: text('name_en').notNull()
+	nameEn: text('name_en').notNull(),
+	facultyTr: text('faculty_tr'),
+	facultyEn: text('faculty_en')
 });
 
 export const courses = sqliteTable(

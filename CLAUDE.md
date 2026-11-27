@@ -1,6 +1,7 @@
 # CLAUDE.md
 
-DersSeç / CourseCritic: öğrencilerin ders + hoca + dönem bazında değerlendirme yaptığı site.
+DersSeç / CourseCritic: öğrencilerin ders + hoca + dönem bazında değerlendirme yaptığı site. Kapsam: Hacettepe'nin
+tüm bölümleri. Katalog `seed/*.csv` → `scripts/make-catalog-sql.py`.
 Ürün kararları: PLAN.md (karar değişince güncelle). Kurulum ve yapı: README.md.
 
 ## Komutlar
@@ -22,6 +23,8 @@ DersSeç / CourseCritic: öğrencilerin ders + hoca + dönem bazında değerlend
 - Bildirimler kişiyi `reporterKey(secret, reviewId, emailHash)` ile tanır, `user_id` ile değil (hesap silinince
   `user_id` boşalır, bildirim sayılmaya devam eder). Gizleme kararı `dismissed = 0` bildirimler sayılarak verilir.
 - Kullanıcı silmek için `deleteUser` / `banUser` kullan.
+- Bölüm seçimi adreste (`?bolum=`) ve tarayıcıda (localStorage) tutulur; hesaba ya da sunucuya kullanıcıyla bağlı yazılmaz.
+- Öğrencinin eklediği ders (`createCourse`) ekleyene bağlanmaz.
 - Öğrencinin eklediği hoca `addInstructorForStudent` ile "beklemede" açılır; farklı 2 öğrenci kullanınca `confirmInstructorIfUsed`
   onaylar. Ekleme sınırları (`limits.ts`: ayda 30 hoca, hesap başına 120 ders) `add_limits` sayacında; kullanıcıya bağlanmaz.
 - E-posta gizliliği (bkz. docs/guvenlik-incelemesi-2026-10.md, "E-posta gizliliği"):

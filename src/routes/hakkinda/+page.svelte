@@ -13,7 +13,7 @@
 	{#if getLocale() === 'en'}
 		<p>
 			CourseCritic helps students choose courses by sharing their experiences. Every review belongs
-			to a specific course, instructor and term (for example "BBM 342, taught by X in 2025-2026
+			to a specific course, instructor and term (for example "MAT 123, taught by X in 2025-2026
 			Fall"), because the same course can be very different depending on who teaches it and when.
 		</p>
 		<h2>How it works</h2>
@@ -47,7 +47,7 @@
 	{:else}
 		<p>
 			DersSeç, öğrencilerin deneyimlerini paylaşarak birbirlerine ders seçiminde yardım ettiği bir
-			platformdur. Her değerlendirme belirli bir ders, hoca ve döneme aittir (ör. "BBM 342, X
+			platformdur. Her değerlendirme belirli bir ders, hoca ve döneme aittir (ör. "MAT 123, X
 			hocanın 2025-2026 Güz döneminde verdiği ders"). Çünkü aynı ders, kimin verdiğine ve hangi
 			dönem alındığına göre çok farklı olabilir.
 		</p>

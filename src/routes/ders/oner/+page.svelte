@@ -8,20 +8,15 @@
 </script>
 
 <svelte:head>
-	<title>{m.suggest_course()} · {m.site_name()}</title>
+	<title>{m.add_course()} · {m.site_name()}</title>
 </svelte:head>
 
 <h1 class="mb-2 text-2xl font-semibold text-brand-900">
-	{data.isAdmin ? m.add_course() : m.suggest_course()}
+	{m.add_course()}
 </h1>
-{#if !data.isAdmin}<p class="mb-6 max-w-2xl text-slate-600">{m.suggest_new_course_intro()}</p>{/if}
+<p class="mb-6 max-w-2xl text-slate-600">{m.suggest_new_course_intro()}</p>
 
-{#if form?.suggested}
-	<div class="max-w-3xl card p-6">
-		<p class="text-green-800">{m.suggestion_thanks()}</p>
-		<a href="/" class="mt-3 inline-block">{m.nav_courses()}</a>
-	</div>
-{:else if data.courseAdds?.remaining === 0 || form?.errors?.limit}
+{#if data.courseAdds?.remaining === 0 || form?.errors?.limit}
 	<p class="max-w-3xl card p-6 text-red-700">
 		{m.course_adds_exhausted({ limit: data.courseAdds?.limit ?? 0 })}
 	</p>
@@ -40,16 +35,14 @@
 		</p>
 	{/if}
 	<form method="POST" class="flex max-w-3xl flex-col gap-4 card p-5" use:enhance>
-		<CourseFieldsForm values={{}} errors={form?.errors} />
-		{#if !data.isAdmin}
-			<div>
-				<label class="label" for="note">{m.suggestion_note()}</label>
-				<textarea id="note" name="note" rows="2" maxlength="1000" class="w-full"></textarea>
-			</div>
-		{/if}
+		<CourseFieldsForm
+			values={{ department: data.preselected || null }}
+			departments={data.departments}
+			errors={form?.errors}
+		/>
 		<div class="flex justify-end gap-3">
 			<a href="/" class="btn btn-secondary">{m.cancel()}</a>
-			<button class="btn btn-primary">{data.isAdmin ? m.save() : m.send_suggestion()}</button>
+			<button class="btn btn-primary">{m.add_course()}</button>
 		</div>
 	</form>
 {/if}

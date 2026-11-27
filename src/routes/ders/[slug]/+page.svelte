@@ -10,7 +10,8 @@
 		curveName,
 		instructorName,
 		kindName,
-		termLabel
+		termLabel,
+		departmentName
 	} from '#lib/i18n.ts';
 	import { m } from '#lib/paraglide/messages.js';
 	import { getLocale } from '#lib/paraglide/runtime.js';
@@ -52,7 +53,13 @@
 	<title>{course.code} {courseName(course)} · {m.site_name()}</title>
 </svelte:head>
 
-<nav class="mb-4 text-sm text-slate-500"><a href="/">{m.nav_courses()}</a> / {course.code}</nav>
+<nav class="mb-4 text-sm text-slate-500">
+	<a href="/">{m.nav_courses()}</a> /
+	{#if data.department}
+		<a href="/?bolum={data.department.code}">{departmentName(data.department)}</a> /
+	{/if}
+	{course.code}
+</nav>
 
 <section class="mb-8 flex flex-wrap items-start justify-between gap-6">
 	<div class="max-w-3xl">

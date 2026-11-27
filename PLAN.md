@@ -5,7 +5,8 @@
 
 ## Amaç
 
-Öğrencilerin ders seçerken birbirine yardımcı olması. İlk prototip: **Hacettepe Üniversitesi Bilgisayar Mühendisliği**. İleride tüm üniversiteye, sonra üniversiteler arası bir sisteme genişleyebilir.
+Öğrencilerin ders seçerken birbirine yardımcı olması. Kapsam: **Hacettepe Üniversitesi'nin tüm bölümleri** (Kasım 2026'da
+Bilgisayar Mühendisliği prototipinden üniversite geneline geçildi). İleride üniversiteler arası bir sisteme genişleyebilir.
 
 - Türkçe adı: **DersSeç**
 - İngilizce adı: **CourseCritic**
@@ -131,22 +132,39 @@ Her kriterin kendi etiketleri vardır. Etiketler taslaktır.
 - Mezunlar: e-posta adresi açık kaldığı sürece giriş yapabilir. Oturumlar 1 yıl geçerli ve kullanıldıkça uzar. Ayrıca okul dışı e-posta bağlama yok; edu e-postasıyla giriş kritik.
 - Yıllara göre puanlama (deneme sürümü): ders sayfasında **Hoca** ve **Dönem** filtreleri var. Puanlar seçime göre yeniden hesaplanır. Böylece üç seviye (ders / ders + hoca / ders + hoca + dönem) tek sayfada. Kullanımla birlikte yeniden değerlendirilecek.
 
+## Üniversite geneli: bölümler (Kasım 2026)
+
+- Site üniversite düzeyinde. Hacettepe'nin tüm lisans bölümleri listede (102 kayıt; kaynak Bologna Bilgi Paketi,
+  `seed/departments.hacettepe.csv`). Eski kodlu ve tekrar eden programlar birleştirildi (ör. eski "Yapay Zeka Mühendisliği"
+  → "Yapay Zeka ve Veri Mühendisliği").
+- Bölüm dışı iki birim: **Üniversite Seçmeli Dersleri (SEC)** ve **Ortak Zorunlu Dersler** (TKD, AİT, İNG, BEB, MÜH, TRK).
+  Servis dersleri dersi veren bölümün altındadır (MAT → Matematik, FİZ → Fizik Müh., İST → İstatistik).
+- Ana sayfada bölüm seçilir (`/?bolum=matematik`). Seçim tarayıcıda hatırlanır, **hesaba yazılmaz** (anonimlik). Seçim
+  yoksa tüm dersler görünür. Öğrenci her bölümün dersini değerlendirebilir.
+- Dersleri admin'in girdiği bölümler: Bilgisayar Müh. (CMP), Yapay Zeka ve Veri Müh. (AID), Elektrik-Elektronik Müh.
+  (ELE), Matematik (MTK + MAT servis dersleri), bu programlardaki ortak dersler ve 268 SEC dersi (hocalarıyla).
+  Diğer bölümlerin derslerini öğrenciler ekler.
+- Yapay Zeka bölümü 2026'da yeni fakülteye geçti ve kodları **AIN → AID** oldu. Sadece yeni AID dersleri eklendi
+  (BBM → CMP ile aynı yaklaşım).
+- SEC listesi Seçmeli Dersler Koordinatörlüğü'nün "verilen tüm SEC dersleri" sayfasından alındı; her ders her dönem
+  açılmayabilir.
+
 ## Ders kataloğu ve BBM → CMP geçişi (Kasım 2026)
 
 - Bölüm 2026-2027 Güz'den itibaren yeni müfredata geçti: ders kodları **BBM** yerine **CMP** oldu.
 - Sitede şimdilik sadece yeni **CMP kodlu bölüm içi dersler** var: 25 zorunlu + 40 teknik seçmeli = 65 ders.
   Kaynak: bölüm sitesindeki "Müfredat (Yeni)" sayfası (TR ve EN). Liste `seed/courses.cmp.csv` dosyasında.
-- Bölüm dışı dersler (MAT, FİZ, İNG, TKD vb.) ve eski BBM dersleri henüz eklenmedi.
+- Eski BBM dersleri henüz eklenmedi. Bölüm dışı dersler (MAT, FİZ, İNG, TKD vb.) Kasım 2026'da eklendi (yukarı bkz.).
 - Ön koşullar eklenmedi (bölüm bunları ayrı bir Google tablosunda tutuyor).
 
 ### Karar: her kullanıcı ders ekleyebilir
 
-- Giriş yapmış her kullanıcı, admin onayı beklemeden yeni ders ekleyebilecek.
+- Giriş yapmış her kullanıcı, admin onayı beklemeden yeni ders ekler (Kasım 2026'da uygulandı). Bölüm seçimi zorunlu.
 - Gerekçe: ders kodu tekil olduğu için aynı ders iki kez eklenemez.
-- Henüz uygulanmadı: şu an yeni ders "öneri" olarak admin onayına düşüyor.
+- Ders kimseye bağlanmaz (ekleyen saklanmaz). Mevcut derse düzeltme önerisi hâlâ admin onayına düşer.
+- Admin yanlış eklenen dersi düzenler; değerlendirmesi olmayan dersi silebilir (değerlendirmesi olan ders silinemez).
 - Sınır: hesap başına toplam **120 yeni ders** (öneri de olsa doğrudan ekleme de olsa). Formda kalan hak görünür.
-- Uygularken dikkat: kod biçimi denetimi ve küfür filtresi kalmalı; yanlış ya da uydurma eklenen dersi admin
-  düzeltebilmeli ya da silebilmeli.
+- Kod biçimi denetimi ve küfür filtresi geçerli.
 
 ### Eski–yeni ders eşleştirmesi (taslak)
 

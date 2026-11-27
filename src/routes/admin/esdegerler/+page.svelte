@@ -14,7 +14,7 @@
 			id="eq-a"
 			name="a"
 			required
-			placeholder="BBM 342"
+			placeholder="CMP 332"
 		/>
 	</div>
 	<span class="pb-2 text-slate-400">↔</span>

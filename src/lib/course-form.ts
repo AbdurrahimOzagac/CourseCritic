@@ -3,6 +3,8 @@ import { findProfanity } from './profanity';
 import { normalizeCourseCode } from './text';
 
 export interface CourseFields {
+	/** Bölüm kodu (departments.code), ör. "matematik". Boşsa: yeni derste varsayılan bölüm, düzenlemede değişmez. */
+	department: string | null;
 	code: string;
 	nameTr: string;
 	nameEn: string | null;
@@ -16,6 +18,7 @@ export interface CourseFields {
 }
 
 export const COURSE_FIELD_KEYS = [
+	'department',
 	'code',
 	'nameTr',
 	'nameEn',
@@ -62,6 +65,9 @@ export function parseCourseFields(
 	const code = rawCode ? normalizeCourseCode(rawCode) : '';
 	if (rawCode && !/^[A-ZÇĞİÖŞÜ]{2,6} ?\d{2,4}[A-Z]?$/.test(code)) errors.code = 'invalid';
 
+	const department = (get('department') ?? '').trim() || null;
+	if (department && !/^[a-z0-9-]{2,80}$/.test(department)) errors.department = 'invalid';
+
 	const kindRaw = (get('kind') ?? '').trim();
 	const kind = kindRaw
 		? (COURSE_KINDS as readonly string[]).includes(kindRaw)
@@ -71,6 +77,7 @@ export function parseCourseFields(
 	if (kindRaw && !kind) errors.kind = 'invalid';
 
 	const data: CourseFields = {
+		department,
 		code,
 		nameTr: text('nameTr', 150, true) ?? '',
 		nameEn: text('nameEn', 150),

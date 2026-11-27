@@ -1,0 +1,103 @@
+code,faculty_tr,faculty_en,name_tr,name_en
+bilgisayar-muhendisligi,Bilgisayar ve Bilişim Bilimleri Fakültesi,Faculty of Computer and Information Sciences,Bilgisayar Mühendisliği,Computer Engineering
+yapay-zeka-ve-veri-muhendisligi,Bilgisayar ve Bilişim Bilimleri Fakültesi,Faculty of Computer and Information Sciences,Yapay Zeka ve Veri Mühendisliği,Artificial Intelligence and Data Engineering
+cevre-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Çevre Mühendisliği,Environmental Engineering
+elektrik-elektronik-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Elektrik-Elektronik Mühendisliği,Electrical and Electronics Engineering
+endustri-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Endüstri Mühendisliği,Industrial Engineering
+fizik-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Fizik Mühendisliği,Physics Engineering
+geomatik-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Geomatik Mühendisliği,Geomatics Engineering
+gida-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Gıda Mühendisliği,Food Engineering
+insaat-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,İnşaat Mühendisliği,Civil Engineering
+jeoloji-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Jeoloji Mühendisliği,Geological Engineering
+kimya-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Kimya Mühendisliği,Chemical Engineering
+maden-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Maden Mühendisliği,Mining Engineering
+makine-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Makine Mühendisliği,Mechanical Engineering
+nukleer-enerji-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Nükleer Enerji Mühendisliği,Nuclear Energy Engineering
+otomotiv-muhendisligi,Mühendislik Fakültesi,Faculty of Engineering,Otomotiv Mühendisliği,Automotive Engineering
+aktuerya-bilimleri,Fen Fakültesi,Faculty of Science,Aktüerya Bilimleri,Actuarial Sciences
+biyoloji,Fen Fakültesi,Faculty of Science,Biyoloji,Biology
+istatistik,Fen Fakültesi,Faculty of Science,İstatistik,Statistics
+kimya,Fen Fakültesi,Faculty of Science,Kimya,Chemistry
+matematik,Fen Fakültesi,Faculty of Science,Matematik,Mathematics
+alman-dili-ve-edebiyati,Edebiyat Fakültesi,Faculty of Letters,Alman Dili ve Edebiyatı,German Language and Literature
+almanca-mutercim-ve-tercumanlik,Edebiyat Fakültesi,Faculty of Letters,Almanca Mütercim ve Tercümanlık,German Translation and Interpreting
+amerikan-kulturu-ve-edebiyati,Edebiyat Fakültesi,Faculty of Letters,Amerikan Kültürü ve Edebiyatı,American Culture and Literature
+antropoloji,Edebiyat Fakültesi,Faculty of Letters,Antropoloji,Anthropology
+arkeoloji,Edebiyat Fakültesi,Faculty of Letters,Arkeoloji,Archaeology
+bilgi-ve-belge-yonetimi,Edebiyat Fakültesi,Faculty of Letters,Bilgi ve Belge Yönetimi,Information Management
+cagdas-turk-lehceleri-ve-edebiyatlari,Edebiyat Fakültesi,Faculty of Letters,Çağdaş Türk Lehçeleri ve Edebiyatları,Modern Turkic Languages and Literatures
+felsefe,Edebiyat Fakültesi,Faculty of Letters,Felsefe,Philosophy
+fransiz-dili-ve-edebiyati,Edebiyat Fakültesi,Faculty of Letters,Fransız Dili ve Edebiyatı,French Language and Literature
+fransizca-mutercim-ve-tercumanlik,Edebiyat Fakültesi,Faculty of Letters,Fransızca Mütercim ve Tercümanlık,French Translation and Interpreting
+ingiliz-dilbilimi,Edebiyat Fakültesi,Faculty of Letters,İngiliz Dilbilimi,English Linguistics
+ingiliz-dili-ve-edebiyati,Edebiyat Fakültesi,Faculty of Letters,İngiliz Dili ve Edebiyatı,English Language and Literature
+ingilizce-mutercim-ve-tercumanlik,Edebiyat Fakültesi,Faculty of Letters,İngilizce Mütercim ve Tercümanlık,English Translation and Interpreting
+psikoloji,Edebiyat Fakültesi,Faculty of Letters,Psikoloji,Psychology
+sanat-tarihi,Edebiyat Fakültesi,Faculty of Letters,Sanat Tarihi,Art History
+sosyoloji,Edebiyat Fakültesi,Faculty of Letters,Sosyoloji,Sociology
+tarih,Edebiyat Fakültesi,Faculty of Letters,Tarih,History
+turk-dili-ve-edebiyati,Edebiyat Fakültesi,Faculty of Letters,Türk Dili ve Edebiyatı,Turkish Language and Literature
+turk-halkbilimi,Edebiyat Fakültesi,Faculty of Letters,Türk Halkbilimi,Turkish Folklore
+alman-dili-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Alman Dili Öğretmenliği,German Language Teaching
+bilgisayar-ve-ogretim-teknolojileri-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Bilgisayar ve Öğretim Teknolojileri Öğretmenliği,Computer Education and Instructional Technology
+biyoloji-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Biyoloji Öğretmenliği,Biology Teaching
+egitim-bilimleri,Eğitim Fakültesi,Faculty of Education,Eğitim Bilimleri,Educational Sciences
+fen-bilgisi-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Fen Bilgisi Öğretmenliği,Science Teaching
+fizik-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Fizik Öğretmenliği,Physics Teaching
+fransiz-dili-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Fransız Dili Öğretmenliği,French Language Teaching
+ilkogretim-matematik-ogretmenligi,Eğitim Fakültesi,Faculty of Education,İlköğretim Matematik Öğretmenliği,Elementary Mathematics Teaching
+ingiliz-dili-ogretmenligi,Eğitim Fakültesi,Faculty of Education,İngiliz Dili Öğretmenliği,English Language Teaching
+kimya-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Kimya Öğretmenliği,Chemistry Teaching
+matematik-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Matematik Öğretmenliği,Mathematics Teaching
+okul-oncesi-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Okul Öncesi Öğretmenliği,Preschool Teaching
+ozel-egitim-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Özel Eğitim Öğretmenliği,Special Education Teaching
+rehberlik-ve-psikolojik-danismanlik,Eğitim Fakültesi,Faculty of Education,Rehberlik ve Psikolojik Danışmanlık,Guidance and Psychological Counselling
+sinif-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Sınıf Öğretmenliği,Classroom Teaching
+turkce-ogretmenligi,Eğitim Fakültesi,Faculty of Education,Türkçe Öğretmenliği,Turkish Teaching
+aile-ve-tuketici-bilimleri,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,Aile ve Tüketici Bilimleri,Family and Consumer Sciences
+iktisat,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,İktisat,Economics
+isletme,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,İşletme,Business Administration
+maliye,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,Maliye,Public Finance
+saglik-yonetimi,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,Sağlık Yönetimi,Health Administration
+siyaset-bilimi-ve-kamu-yonetimi,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,Siyaset Bilimi ve Kamu Yönetimi,Political Science and Public Administration
+sosyal-hizmet,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,Sosyal Hizmet,Social Work
+uluslararasi-iliskiler,İktisadi ve İdari Bilimler Fakültesi,Faculty of Economics and Administrative Sciences,Uluslararası İlişkiler,International Relations
+iletisim-bilimleri,İletişim Fakültesi,Faculty of Communication,İletişim Bilimleri,Communication Sciences
+radyo-televizyon-ve-sinema,İletişim Fakültesi,Faculty of Communication,"Radyo, Televizyon ve Sinema","Radio, Television and Cinema"
+mimarlik,Mimarlık Fakültesi,Faculty of Architecture,Mimarlık,Architecture
+ic-mimarlik-ve-cevre-tasarimi,Güzel Sanatlar Fakültesi,Faculty of Fine Arts,İç Mimarlık ve Çevre Tasarımı,Interior Architecture and Environmental Design
+grafik,Güzel Sanatlar Fakültesi,Faculty of Fine Arts,Grafik,Graphic Design
+heykel,Güzel Sanatlar Fakültesi,Faculty of Fine Arts,Heykel,Sculpture
+resim,Güzel Sanatlar Fakültesi,Faculty of Fine Arts,Resim,Painting
+seramik-ve-cam,Güzel Sanatlar Fakültesi,Faculty of Fine Arts,Seramik ve Cam,Ceramics and Glass
+tip,Tıp Fakültesi,Faculty of Medicine,Tıp,Medicine
+dis-hekimligi,Diş Hekimliği Fakültesi,Faculty of Dentistry,Diş Hekimliği,Dentistry
+eczacilik,Eczacılık Fakültesi,Faculty of Pharmacy,Eczacılık,Pharmacy
+hemsirelik,Hemşirelik Fakültesi,Faculty of Nursing,Hemşirelik,Nursing
+fizyoterapi-ve-rehabilitasyon,Fizik Tedavi ve Rehabilitasyon Fakültesi,Faculty of Physical Therapy and Rehabilitation,Fizyoterapi ve Rehabilitasyon,Physiotherapy and Rehabilitation
+beslenme-ve-diyetetik,Sağlık Bilimleri Fakültesi,Faculty of Health Sciences,Beslenme ve Diyetetik,Nutrition and Dietetics
+cocuk-gelisimi,Sağlık Bilimleri Fakültesi,Faculty of Health Sciences,Çocuk Gelişimi,Child Development
+dil-ve-konusma-terapisi,Sağlık Bilimleri Fakültesi,Faculty of Health Sciences,Dil ve Konuşma Terapisi,Speech and Language Therapy
+ergoterapi,Sağlık Bilimleri Fakültesi,Faculty of Health Sciences,Ergoterapi,Occupational Therapy
+odyoloji,Sağlık Bilimleri Fakültesi,Faculty of Health Sciences,Odyoloji,Audiology
+paramedik,Sağlık Bilimleri Fakültesi,Faculty of Health Sciences,Paramedik,Paramedic
+hukuk,Hukuk Fakültesi,Faculty of Law,Hukuk,Law
+antrenorluk-egitimi,Spor Bilimleri Fakültesi,Faculty of Sport Sciences,Antrenörlük Eğitimi,Coaching Education
+beden-egitimi-ve-spor-ogretmenligi,Spor Bilimleri Fakültesi,Faculty of Sport Sciences,Beden Eğitimi ve Spor Öğretmenliği,Physical Education and Sports Teaching
+rekreasyon,Spor Bilimleri Fakültesi,Faculty of Sport Sciences,Rekreasyon,Recreation
+arp,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Arp,Harp
+bale,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Bale,Ballet
+bando-sefligi,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Bando Şefliği,Band Conducting
+bestecilik,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Bestecilik,Composition
+caz,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Caz,Jazz
+gitar,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Gitar,Guitar
+koreoloji,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Koreoloji,Choreology
+modern-dans,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Modern Dans,Modern Dance
+muzikoloji,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Müzikoloji,Musicology
+nefesli-sazlar,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Nefesli Sazlar,Wind Instruments
+opera,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Opera,Opera
+piyano,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Piyano,Piano
+tiyatro,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Tiyatro,Theatre
+yayli-calgilar,Ankara Devlet Konservatuvarı,Ankara State Conservatory,Yaylı Çalgılar,String Instruments
+secmeli-dersler,Rektörlük,Rectorate,Üniversite Seçmeli Dersleri (SEC),University Electives (SEC)
+ortak-dersler,Rektörlük,Rectorate,"Ortak Zorunlu Dersler (Türk Dili, Atatürk İlkeleri, İngilizce)","Common Compulsory Courses (Turkish, Atatürk's Principles, English)"

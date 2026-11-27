@@ -58,13 +58,25 @@ npm run db:generate    # schema.ts değişince yeni migration üretir (migration
 
 ## Ders ve hoca verisi
 
-Admin panelindeki **İçe aktar** sekmesinden CSV yüklenir. Örnek biçimler: [seed/courses.sample.csv](seed/courses.sample.csv),
-[seed/instructors.sample.csv](seed/instructors.sample.csv).
+Hacettepe kataloğu (bölümler, CMP / AID / ELE / MTK / MAT / ortak dersler, SEC dersleri ve hocaları) `seed/` altındaki
+CSV dosyalarındadır ve tek bir SQL dosyasıyla yüklenir. Betik tekrar çalıştırılabilir; var olan derslere dokunmaz.
+Kaynaklar betiğin başında yazılıdır.
 
-- Dersler: `code,name_tr,name_en,credits,ects,year_level,kind,prerequisites,description_tr,description_en`.
+```bash
+python3 scripts/make-catalog-sql.py > /tmp/catalog.sql
+npx wrangler d1 execute DB --local --file=/tmp/catalog.sql     # canlı için --remote
+```
+
+Tek tek eklemeler için admin panelindeki **İçe aktar** sekmesi kullanılır. Örnek biçimler:
+[seed/courses.sample.csv](seed/courses.sample.csv), [seed/instructors.sample.csv](seed/instructors.sample.csv).
+
+- Dersler: `department,code,name_tr,name_en,credits,ects,year_level,kind,prerequisites,description_tr,description_en`.
+  `department` bölüm kodudur (`seed/departments.hacettepe.csv`, ör. `matematik`); boşsa Bilgisayar Mühendisliği.
   `kind`: `zorunlu` / `seçmeli`. Aynı kodlu ders varsa güncellenir.
-- Hocalar: `title,name,courses`. `courses` alanı noktalı virgülle ayrılmış ders kodlarıdır (`BBM 101;BBM 342`).
+- Hocalar: `name,courses`. `courses` alanı noktalı virgülle ayrılmış ders kodlarıdır (`CMP 101;CMP 201`).
   Aynı isimli hoca tekrar eklenmez.
+- Öğrenciler eksik dersleri kendileri ekler (hesap başına 120). Admin yanlış eklenen dersi düzenler; değerlendirmesi
+  yoksa siler.
 
 ## Proje yapısı
 

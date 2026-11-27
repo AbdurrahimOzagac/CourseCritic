@@ -25,8 +25,8 @@
 		<a href="/ders/{data.slug}" class="mt-3 inline-block">{m.back_to_course()}</a>
 	</div>
 {:else}
-	<form method="POST" class="flex max-w-3xl flex-col gap-4 card p-5" use:enhance>
-		<CourseFieldsForm values={data.fields} errors={form?.errors} />
+	<form method="POST" action="?/save" class="flex max-w-3xl flex-col gap-4 card p-5" use:enhance>
+		<CourseFieldsForm values={data.fields} departments={data.departments} errors={form?.errors} />
 		{#if !data.isAdmin}
 			<div>
 				<label class="label" for="note">{m.suggestion_note()}</label>
@@ -38,4 +38,21 @@
 			<button class="btn btn-primary">{data.isAdmin ? m.save() : m.send_suggestion()}</button>
 		</div>
 	</form>
+	{#if data.isAdmin}
+		<form
+			method="POST"
+			action="?/delete"
+			class="mt-6 flex max-w-3xl items-center justify-between gap-3 card p-4"
+			use:enhance={({ cancel }) => {
+				if (!confirm(m.delete_course_confirm())) cancel();
+			}}
+		>
+			<p class="text-sm text-slate-600">
+				{data.canDelete ? m.delete_course_hint() : m.delete_course_has_reviews()}
+			</p>
+			<button class="btn btn-secondary text-red-700" disabled={!data.canDelete}
+				>{m.delete_course()}</button
+			>
+		</form>
+	{/if}
 {/if}

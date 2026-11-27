@@ -12,3 +12,4 @@ seed/sample.sql
 migrations/meta
 worker-configuration.d.ts
 src/lib/paraglide
+project.inlang/README.md

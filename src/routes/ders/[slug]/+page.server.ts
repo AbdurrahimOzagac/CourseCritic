@@ -17,9 +17,13 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const course = await getCourseBySlug(locals.db, params.slug);
 	if (!course) error(404, 'Ders bulunamadı');
 
-	const [instructors, equivalents] = await Promise.all([
+	const [instructors, equivalents, department] = await Promise.all([
 		getCourseInstructors(locals.db, course.id),
-		getEquivalents(locals.db, course.id)
+		getEquivalents(locals.db, course.id),
+		locals.db.query.departments.findFirst({
+			where: (t, { eq }) => eq(t.id, course.departmentId),
+			columns: { code: true, nameTr: true, nameEn: true }
+		})
 	]);
 
 	const selectedInstructor =
@@ -72,6 +76,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 
 	return {
 		course,
+		department: department ?? null,
 		equivalents,
 		instructors,
 		termOptions,

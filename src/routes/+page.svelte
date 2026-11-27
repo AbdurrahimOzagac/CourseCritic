@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import DepartmentSelect from '#lib/components/DepartmentSelect.svelte';
 	import { MIN_REVIEWS_FOR_SUMMARY } from '#lib/constants.ts';
 	import { courseName, instructorName, kindName, scaleLabel } from '#lib/i18n.ts';
 	import { m } from '#lib/paraglide/messages.js';
@@ -14,6 +17,38 @@
 	let kind = $state('');
 	let sortKey = $state<SortKey>('code');
 	let sortDesc = $state(false);
+
+	// Bölüm seçimi: adreste (?bolum=) ve bu tarayıcıda hatırlanır. Hesaba yazılmaz.
+	const DEPARTMENT_KEY = 'derssec:bolum';
+	// svelte-ignore state_referenced_locally
+	let department = $state(data.department ?? '');
+	$effect(() => {
+		department = data.department ?? '';
+	});
+
+	function selectDepartment(code: string) {
+		try {
+			localStorage.setItem(DEPARTMENT_KEY, code);
+		} catch {
+			// Tarayıcı depolaması kapalıysa seçim sadece adreste kalır
+		}
+		yearLevel = '';
+		kind = '';
+		goto(code ? `/?bolum=${encodeURIComponent(code)}` : '/', { reset: false });
+	}
+
+	onMount(() => {
+		if (new URL(location.href).searchParams.has('bolum')) return;
+		let saved = '';
+		try {
+			saved = localStorage.getItem(DEPARTMENT_KEY) ?? '';
+		} catch {
+			return;
+		}
+		if (saved && data.departments.some((d) => d.code === saved)) {
+			goto(`/?bolum=${encodeURIComponent(saved)}`, { replace: true, reset: false });
+		}
+	});
 
 	const levels = $derived(
 		[...new Set(data.courses.map((c) => c.yearLevel).filter((l): l is number => l !== null))].sort()
@@ -64,10 +99,22 @@
 		<h1 class="text-2xl font-semibold text-brand-900">{m.home_title()}</h1>
 		<p class="mt-1 max-w-2xl text-slate-600">{m.home_intro()}</p>
 	</div>
-	<a href="/ders/oner" class="text-sm">{m.suggest_course_link()}</a>
+	<a href="/ders/oner{department ? `?bolum=${department}` : ''}" class="text-sm"
+		>{m.suggest_course_link()}</a
+	>
 </div>
 
 <div class="mb-4 flex flex-wrap items-end gap-3 card p-3">
+	<div class="w-full sm:w-72">
+		<label class="label" for="filter-department">{m.filter_department()}</label>
+		<DepartmentSelect
+			id="filter-department"
+			departments={data.departments}
+			bind:value={department}
+			emptyLabel={m.all_departments()}
+			onchange={selectDepartment}
+		/>
+	</div>
 	<div class="min-w-48 flex-1">
 		<label class="label" for="filter-q">{m.filter_search()}</label>
 		<input
@@ -170,7 +217,16 @@
 					<td class="text-right tabular-nums">{c.reviewCount}</td>
 				</tr>
 			{:else}
-				<tr><td colspan="6" class="py-8 text-center text-slate-500">{m.no_courses_found()}</td></tr>
+				<tr>
+					<td colspan="6" class="py-8 text-center text-slate-500">
+						{#if department && !data.courses.length}
+							{m.department_courses_empty()}
+							<a href="/ders/oner?bolum={department}" class="ml-1">{m.add_course()}</a>
+						{:else}
+							{m.no_courses_found()}
+						{/if}
+					</td>
+				</tr>
 			{/each}
 		</tbody>
 	</table>

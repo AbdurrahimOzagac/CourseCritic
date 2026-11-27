@@ -1,27 +1,52 @@
 <script lang="ts">
 	import { COURSE_KINDS } from '#lib/constants.ts';
 	import type { CourseFields } from '#lib/course-form.ts';
+	import DepartmentSelect, { type DepartmentOption } from './DepartmentSelect.svelte';
 	import { kindName } from '#lib/i18n.ts';
 	import { m } from '#lib/paraglide/messages.js';
 
 	let {
 		values,
+		departments,
 		errors = {}
-	}: { values: Partial<CourseFields>; errors?: Partial<Record<string, string>> } = $props();
+	}: {
+		values: Partial<CourseFields>;
+		departments: DepartmentOption[];
+		errors?: Partial<Record<string, string>>;
+	} = $props();
 
+	// svelte-ignore state_referenced_locally
+	let department = $state(values.department ?? '');
+
+	// 'exists' (aynı kodda ders var) sayfanın üstünde bağlantıyla gösterilir
 	const err = (k: string) =>
-		errors[k] === 'required'
-			? m.error_required()
-			: errors[k] === 'too_long'
-				? m.error_too_long()
-				: errors[k] === 'profanity'
-					? m.error_profanity()
-					: errors[k]
-						? m.error_invalid()
-						: null;
+		errors[k] === 'exists'
+			? null
+			: errors[k] === 'required'
+				? m.error_required()
+				: errors[k] === 'too_long'
+					? m.error_too_long()
+					: errors[k] === 'profanity'
+						? m.error_profanity()
+						: errors[k]
+							? m.error_invalid()
+							: null;
 </script>
 
 <div class="grid gap-4 sm:grid-cols-2">
+	<div class="sm:col-span-2">
+		<label class="label" for="department">{m.field_department()}</label>
+		<DepartmentSelect
+			id="department"
+			name="department"
+			required
+			{departments}
+			bind:value={department}
+			emptyLabel="–"
+		/>
+		<p class="mt-1 text-xs text-slate-500">{m.field_department_hint()}</p>
+		{#if err('department')}<p class="mt-1 text-sm text-red-700">{err('department')}</p>{/if}
+	</div>
 	<div>
 		<label class="label" for="code">{m.field_code()}</label>
 		<input
@@ -29,7 +54,7 @@
 			name="code"
 			required
 			value={values.code ?? ''}
-			placeholder="BBM 342"
+			placeholder="MAT 123"
 			class="w-full"
 		/>
 		{#if err('code')}<p class="mt-1 text-sm text-red-700">{err('code')}</p>{/if}
@@ -94,7 +119,7 @@
 			id="prerequisites"
 			name="prerequisites"
 			value={values.prerequisites ?? ''}
-			placeholder="BBM 101, BBM 102"
+			placeholder="MAT 123, CMP 101"
 			class="w-full"
 		/>
 	</div>

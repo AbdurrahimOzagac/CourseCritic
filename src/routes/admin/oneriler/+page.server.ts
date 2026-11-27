@@ -3,21 +3,22 @@ import { eq } from 'drizzle-orm';
 import { COURSE_FIELD_KEYS, type CourseFields } from '#lib/course-form.ts';
 import { requireAdmin } from '#lib/server/admin.ts';
 import { courseToFields, updateCourse, upsertCourse } from '#lib/server/courses.ts';
-import { courseSuggestions, courses } from '#lib/server/db/schema.ts';
+import { courseSuggestions, courses, departments } from '#lib/server/db/schema.ts';
 import { isUniqueViolation } from '#lib/server/db/errors.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const rows = await locals.db
-		.select({ suggestion: courseSuggestions, course: courses })
+		.select({ suggestion: courseSuggestions, course: courses, departmentCode: departments.code })
 		.from(courseSuggestions)
 		.leftJoin(courses, eq(courses.id, courseSuggestions.courseId))
+		.leftJoin(departments, eq(departments.id, courses.departmentId))
 		.orderBy(courseSuggestions.createdAt);
 
 	return {
-		suggestions: rows.map(({ suggestion, course }) => {
+		suggestions: rows.map(({ suggestion, course, departmentCode }) => {
 			const proposed = JSON.parse(suggestion.payload) as CourseFields;
-			const current = course ? courseToFields(course) : null;
+			const current = course ? courseToFields(course, departmentCode) : null;
 			return {
 				id: suggestion.id,
 				note: suggestion.note,

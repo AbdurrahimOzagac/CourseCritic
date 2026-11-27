@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { parseCourseFields } from '#lib/course-form.ts';
 import { parseCsv } from '#lib/csv.ts';
 import { requireAdmin } from '#lib/server/admin.ts';
-import { upsertCourse } from '#lib/server/courses.ts';
+import { UnknownDepartmentError, upsertCourse } from '#lib/server/courses.ts';
 import { courseInstructors, courses } from '#lib/server/db/schema.ts';
 import { findOrCreateInstructor } from '#lib/server/instructors.ts';
 import { courseSlug } from '#lib/text.ts';
@@ -47,9 +47,14 @@ export const actions: Actions = {
 				);
 				continue;
 			}
-			const r = await upsertCourse(event.locals.db, parsed.data);
-			if (r.created) created++;
-			else updated++;
+			try {
+				const r = await upsertCourse(event.locals.db, parsed.data);
+				if (r.created) created++;
+				else updated++;
+			} catch (e) {
+				if (!(e instanceof UnknownDepartmentError)) throw e;
+				errors.push(`${i + 2}. satır (${row.code || '?'}): department=${parsed.data.department}`);
+			}
 		}
 		return { kind: 'courses', created, updated, errors };
 	},

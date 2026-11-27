@@ -76,7 +76,7 @@
 				id="new-courses"
 				name="courses"
 				class="w-full"
-				placeholder="BBM 101, BBM 342"
+				placeholder="CMP 101, CMP 201"
 			/>
 		</div>
 		<button class="btn btn-primary">{m.add()}</button>
@@ -116,7 +116,7 @@
 									<input
 										name="courses"
 										value={i.courseCodes ?? ''}
-										placeholder="BBM 101, BBM 342"
+										placeholder="CMP 101, CMP 201"
 									/>
 									<button class="btn btn-primary py-1">{m.save()}</button>
 									<button

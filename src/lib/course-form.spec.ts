@@ -31,4 +31,17 @@ describe('parseCourseFields', () => {
 				kind: 'invalid'
 			});
 	});
+
+	it('reads the department code and rejects malformed ones', () => {
+		const ok = parseCourseFields(
+			from({ code: 'MTK 111', nameTr: 'Analiz I', department: 'matematik' })
+		);
+		expect(ok.ok && ok.data.department).toBe('matematik');
+		const none = parseCourseFields(from({ code: 'MTK 111', nameTr: 'Analiz I' }));
+		expect(none.ok && none.data.department).toBe(null);
+		const bad = parseCourseFields(
+			from({ code: 'MTK 111', nameTr: 'Analiz I', department: "x'; DROP TABLE" })
+		);
+		expect(!bad.ok && bad.errors.department).toBe('invalid');
+	});
 });

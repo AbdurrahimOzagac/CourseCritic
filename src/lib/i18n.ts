@@ -141,3 +141,11 @@ export function formatAverage(value: number | null): string {
 		? '–'
 		: value.toLocaleString(getLocale(), { maximumFractionDigits: 1, minimumFractionDigits: 1 });
 }
+
+export function departmentName(d: { nameTr: string; nameEn: string }): string {
+	return getLocale() === 'en' ? d.nameEn : d.nameTr;
+}
+
+export function facultyName(d: { facultyTr: string | null; facultyEn: string | null }): string {
+	return (getLocale() === 'en' ? d.facultyEn || d.facultyTr : d.facultyTr || d.facultyEn) ?? '';
+}
